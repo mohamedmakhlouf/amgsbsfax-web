@@ -3,15 +3,16 @@ services:
   - type: web
     name: amgsbsfax-web
     runtime: python
+    pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        sync: false           # À définir manuellement dans Render Dashboard
+        sync: false
       - key: DATABASE_URL
-        sync: false           # URL Neon PostgreSQL
+        sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
@@ -22,4 +23,4 @@ services:
         sync: false
       - key: MAIL_PASSWORD
         sync: false
-    autoDeploy: true          # Déploiement automatique à chaque push GitHub
+    autoDeploy: true
