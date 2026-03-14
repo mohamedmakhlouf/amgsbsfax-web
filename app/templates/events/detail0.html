@@ -1,0 +1,546 @@
+{# ---app/templates/events/detail.html---01 mars 2026--- #}
+{% extends "base.html" %}
+{% block title %}{{ event.title_ar if session.get('lang')=='ar' else event.title_fr }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── HERO ÉVÉNEMENT ── */
+.event-hero {
+  background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+  padding: 60px 40px 50px;
+  position: relative;
+  overflow: hidden;
+}
+.event-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.event-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.event-breadcrumb {
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.event-breadcrumb a { color: rgba(255,255,255,.6); text-decoration: none; }
+.event-breadcrumb a:hover { color: var(--secondary); }
+.event-type-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 5px 16px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+.event-type-badge.seminaire { background: rgba(200,144,42,.2); color: var(--secondary); border: 1px solid rgba(200,144,42,.3); }
+.event-type-badge.congres   { background: rgba(255,215,0,.15); color: #ffd700; border: 1px solid rgba(255,215,0,.3); }
+.event-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  color: white;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+.event-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.event-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255,255,255,.8);
+}
+.event-meta-item .mi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-register {
+  background: var(--secondary);
+  color: white;
+  padding: 13px 30px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all .3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-register:hover { background: #b07a20; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,144,42,.4); }
+.btn-back {
+  background: rgba(255,255,255,.1);
+  color: white;
+  padding: 13px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid rgba(255,255,255,.2);
+  transition: all .2s;
+}
+.btn-back:hover { background: rgba(255,255,255,.18); }
+
+/* ── COVER IMAGE ── */
+.event-cover {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── LAYOUT ── */
+.event-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 40px;
+  align-items: start;
+}
+@media(max-width: 900px) {
+  .event-layout { grid-template-columns: 1fr; padding: 32px 20px; }
+  .event-hero { padding: 40px 20px 36px; }
+}
+
+/* ── CONTENT ── */
+.event-section { margin-bottom: 36px; }
+.event-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.event-section p, .event-section li {
+  font-size: 15px;
+  color: #3a4a5a;
+  line-height: 1.8;
+}
+.event-section ul { padding-left: 20px; }
+.event-section li { margin-bottom: 6px; }
+
+/* Programme */
+.program-content {
+  background: var(--light);
+  border-radius: 14px;
+  padding: 24px 28px;
+  font-size: 14px;
+  color: #3a4a5a;
+  line-height: 1.9;
+  white-space: pre-line;
+  border-left: 4px solid var(--primary);
+}
+
+/* ── SIDEBAR ── */
+.event-sidebar {}
+.info-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(26,74,110,.06);
+}
+.info-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid #f0f4f8;
+  font-size: 13px;
+  gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .ir-label { color: #607080; font-weight: 600; flex-shrink: 0; }
+.info-row .ir-val { color: var(--primary); font-weight: 500; text-align: right; }
+
+/* Date card */
+.date-card {
+  background: linear-gradient(135deg, var(--primary), #1a6e8a);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.date-card .dc-day {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--secondary);
+}
+.date-card .dc-month {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: .85;
+  margin: 4px 0 10px;
+}
+.date-card .dc-sep {
+  height: 1px;
+  background: rgba(255,255,255,.2);
+  margin: 12px 0;
+}
+.date-card .dc-info {
+  font-size: 13px;
+  opacity: .8;
+  line-height: 1.6;
+}
+
+/* Register CTA card */
+.cta-card {
+  background: linear-gradient(135deg, var(--secondary), #b07a20);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  color: white;
+}
+.cta-card h3 { color: white; font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 8px; }
+.cta-card p { font-size: 13px; opacity: .9; margin-bottom: 16px; line-height: 1.6; }
+.cta-card a {
+  display: block;
+  background: white;
+  color: var(--secondary);
+  padding: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all .2s;
+}
+.cta-card a:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.2); }
+
+/* Hôtel card */
+.hotel-stars { color: var(--secondary); font-size: 14px; margin-bottom: 6px; }
+
+/* ── GALERIE PHOTOS ── */
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.photo-item {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.photo-item:hover { transform: scale(1.02); }
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 85vh; border-radius: 12px; object-fit: contain; }
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  line-height: 1;
+  opacity: .8;
+}
+.lightbox-close:hover { opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="event-hero">
+  <div class="event-hero-inner">
+    <div class="event-breadcrumb">
+      <a href="{{ url_for('main.index') }}">🏠 Accueil</a> ›
+      <a href="{{ url_for('events.index') }}">Événements</a> ›
+      <span>{{ event.title_ar if session.get('lang')=='ar' else event.title_fr }}</span>
+    </div>
+
+    <span class="event-type-badge {{ event.event_type }}">
+      {{ '🏛️ Congrès' if event.event_type == 'congres' else '🎓 Séminaire' }}
+    </span>
+
+    <h1>{{ event.title_ar if session.get('lang')=='ar' and event.title_ar else event.title_fr }}</h1>
+
+    <div class="event-meta-row">
+      {% if event.date_start %}
+      <div class="event-meta-item">
+        <span class="mi-icon">📅</span>
+        <span>
+          {{ event.date_start.strftime('%d/%m/%Y') }}
+          {% if event.date_end and event.date_end != event.date_start %}
+            → {{ event.date_end.strftime('%d/%m/%Y') }}
+          {% endif %}
+        </span>
+      </div>
+      {% endif %}
+      {% if event.city %}
+      <div class="event-meta-item">
+        <span class="mi-icon">📍</span>
+        <span>{{ event.city }}{% if event.address %} — {{ event.address }}{% endif %}</span>
+      </div>
+      {% endif %}
+      {% if event.hotel_name %}
+      <div class="event-meta-item">
+        <span class="mi-icon">🏨</span>
+        <span>{{ event.hotel_name }}</span>
+      </div>
+      {% endif %}
+      {% if event.transport_available %}
+      <div class="event-meta-item">
+        <span class="mi-icon">🚌</span>
+        <span>Transport disponible</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="hero-actions">
+      <a href="{{ url_for('register.index') }}?event_id={{ event.id }}" class="btn-register">
+        ✅ S'inscrire à cet événement
+      </a>
+      <a href="{{ url_for('events.index') }}" class="btn-back">← Tous les événements</a>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE DE COUVERTURE -->
+{% if event.image_url %}
+<img src="{{ event.image_url }}" alt="{{ event.title_fr }}" class="event-cover"/>
+{% endif %}
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="event-layout">
+
+  <!-- COLONNE GAUCHE : CONTENU -->
+  <div class="event-main">
+
+    <!-- Description -->
+    {% if event.description_fr or event.description_ar %}
+    <div class="event-section">
+      <h2>📋 À propos de l'événement</h2>
+      <p>{{ event.description_ar if session.get('lang')=='ar' and event.description_ar else event.description_fr }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Programme -->
+    {% if event.program_fr or event.program_ar %}
+    <div class="event-section">
+      <h2>📜 Programme</h2>
+      <div class="program-content">{{ event.program_ar if session.get('lang')=='ar' and event.program_ar else event.program_fr }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Transport -->
+    {% if event.transport_available and (event.transport_details_fr or event.transport_details_ar) %}
+    <div class="event-section">
+      <h2>🚌 Transport</h2>
+      <p>{{ event.transport_details_ar if session.get('lang')=='ar' and event.transport_details_ar else event.transport_details_fr }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Galerie photos -->
+    {% if photos %}
+    <div class="event-section">
+      <h2>📸 Photos</h2>
+      <div class="photos-grid">
+        {% for photo in photos %}
+        <div class="photo-item" onclick="openLightbox('{{ photo.url }}')">
+          <img src="{{ photo.url }}" alt="{{ photo.caption_fr or '' }}"
+               loading="lazy"
+               onerror="this.parentElement.style.display='none'"/>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- COLONNE DROITE : SIDEBAR -->
+  <aside class="event-sidebar">
+
+    <!-- Date card -->
+    {% if event.date_start %}
+    <div class="date-card">
+      <div class="dc-day">{{ event.date_start.strftime('%d') }}</div>
+      <div class="dc-month">{{ event.date_start.strftime('%B %Y') }}</div>
+      {% if event.date_end and event.date_end != event.date_start %}
+      <div class="dc-sep"></div>
+      <div class="dc-info">
+        Du {{ event.date_start.strftime('%d/%m') }} au {{ event.date_end.strftime('%d/%m/%Y') }}<br>
+        {{ (event.date_end - event.date_start).days + 1 }} jours
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- CTA Inscription -->
+    <div class="cta-card">
+      <h3>🎟️ Inscription</h3>
+      <p>Réservez votre place dès maintenant pour cet événement.</p>
+      <a href="{{ url_for('register.index') }}?event_id={{ event.id }}">✅ S'inscrire maintenant</a>
+    </div>
+
+    <!-- Infos pratiques -->
+    <div class="info-card">
+      <h3>📍 Informations pratiques</h3>
+      {% if event.city %}
+      <div class="info-row">
+        <span class="ir-label">Ville</span>
+        <span class="ir-val">{{ event.city }}</span>
+      </div>
+      {% endif %}
+      {% if event.address %}
+      <div class="info-row">
+        <span class="ir-label">Adresse</span>
+        <span class="ir-val">{{ event.address }}</span>
+      </div>
+      {% endif %}
+      {% if event.date_start %}
+      <div class="info-row">
+        <span class="ir-label">Date début</span>
+        <span class="ir-val">{{ event.date_start.strftime('%d/%m/%Y') }}</span>
+      </div>
+      {% endif %}
+      {% if event.date_end %}
+      <div class="info-row">
+        <span class="ir-label">Date fin</span>
+        <span class="ir-val">{{ event.date_end.strftime('%d/%m/%Y') }}</span>
+      </div>
+      {% endif %}
+      <div class="info-row">
+        <span class="ir-label">Type</span>
+        <span class="ir-val">{{ 'Congrès' if event.event_type == 'congres' else 'Séminaire' }}</span>
+      </div>
+      {% if event.transport_available %}
+      <div class="info-row">
+        <span class="ir-label">Transport</span>
+        <span class="ir-val" style="color:var(--green);">✅ Disponible</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Hôtel -->
+    {% if event.hotel_name %}
+    <div class="info-card">
+      <h3>🏨 Hébergement</h3>
+      {% if event.hotel_stars %}
+      <div class="hotel-stars">{{ '⭐' * event.hotel_stars }}</div>
+      {% endif %}
+      <div class="info-row">
+        <span class="ir-label">Hôtel</span>
+        <span class="ir-val">{{ event.hotel_name }}</span>
+      </div>
+      {% if event.hotel_address %}
+      <div class="info-row">
+        <span class="ir-label">Adresse</span>
+        <span class="ir-val">{{ event.hotel_address }}</span>
+      </div>
+      {% endif %}
+      {% if event.hotel_nights %}
+      <div class="info-row">
+        <span class="ir-label">Nuitées</span>
+        <span class="ir-val">{{ event.hotel_nights }} nuit(s)</span>
+      </div>
+      {% endif %}
+      {% if event.hotel_price_night %}
+      <div class="info-row">
+        <span class="ir-label">Prix / nuit</span>
+        <span class="ir-val">{{ event.hotel_price_night }} DT</span>
+      </div>
+      {% endif %}
+      {% if event.hotel_map_url %}
+      <div style="margin-top:12px;">
+        <a href="{{ event.hotel_map_url }}" target="_blank"
+           style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">
+          🗺️ Voir sur Google Maps →
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </aside>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt=""/>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openLightbox(url) {
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}

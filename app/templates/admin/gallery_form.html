@@ -1,0 +1,116 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Modifier' if item else 'Ajouter' }} une photo{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">
+  <a href="{{ url_for('admin.gallery') }}" class="btn-sm btn-blue">← Retour</a>
+  <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--primary);">
+    {{ '✏️ Modifier la photo' if item else '➕ Ajouter une photo à la galerie' }}
+  </h2>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat,msg in messages %}
+  <div class="flash {{ cat }}">{% if cat=='success' %}✅{% elif cat=='error' %}❌{% else %}ℹ️{% endif %} {{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+
+<div style="max-width:640px;">
+  <form method="POST" enctype="multipart/form-data"
+        style="background:white;border-radius:16px;padding:32px;border:1px solid var(--border);">
+
+    <!-- Aperçu photo existante -->
+    {% if item and item.url %}
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:700;display:block;margin-bottom:8px;color:var(--primary);">Photo actuelle</label>
+      <img src="{{ item.url }}" style="max-width:100%;max-height:220px;border-radius:12px;object-fit:cover;"/>
+      <p style="font-size:12px;color:#607080;margin-top:6px;">Choisissez une nouvelle photo ci-dessous pour la remplacer.</p>
+    </div>
+    {% endif %}
+
+    <!-- Upload -->
+    <div style="margin-bottom:20px;">
+      <label style="font-weight:700;display:block;margin-bottom:8px;color:var(--primary);">
+        📷 {{ 'Nouvelle photo' if item else 'Photo' }} {% if not item %}<span style="color:red;">*</span>{% endif %}
+      </label>
+      <input type="file" name="photo" accept="image/*" {% if not item %}required{% endif %}
+             style="width:100%;padding:10px;border:2px dashed #d0dce8;border-radius:10px;background:#f9fbfd;cursor:pointer;"
+             onchange="previewImage(this)"/>
+      <div id="preview" style="margin-top:12px;display:none;">
+        <img id="previewImg" style="max-width:100%;max-height:200px;border-radius:10px;object-fit:cover;"/>
+      </div>
+      <small style="color:#607080;">Formats acceptés : JPG, PNG, WEBP — Taille recommandée : 1200×800px</small>
+    </div>
+
+    <!-- Légende FR -->
+    <div style="margin-bottom:16px;">
+      <label style="font-weight:700;display:block;margin-bottom:6px;color:var(--primary);">Légende (Français)</label>
+      <input type="text" name="caption_fr"
+             value="{{ item.caption_fr if item else '' }}"
+             placeholder="ex: Séminaire de Médecine Générale — Sfax 2025"
+             style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;"/>
+    </div>
+
+    <!-- Légende AR -->
+    <div style="margin-bottom:16px;">
+      <label style="font-weight:700;display:block;margin-bottom:6px;color:var(--primary);">التعليق (عربي)</label>
+      <input type="text" name="caption_ar"
+             value="{{ item.caption_ar if item else '' }}"
+             placeholder="مثال: ندوة الطب العام — صفاقس 2025"
+             dir="rtl"
+             style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Cairo',sans-serif;"/>
+    </div>
+
+    <!-- Ordre -->
+    <div style="margin-bottom:16px;">
+      <label style="font-weight:700;display:block;margin-bottom:6px;color:var(--primary);">Ordre d'affichage</label>
+      <input type="number" name="order" min="0"
+             value="{{ item.order if item else 0 }}"
+             style="width:120px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;"/>
+      <small style="color:#607080;margin-left:10px;">0 = affiché en premier</small>
+    </div>
+
+    <!-- Options -->
+    <div style="margin-bottom:24px;display:flex;flex-direction:column;gap:12px;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;">
+        <input type="checkbox" name="is_featured" value="1"
+               {% if item and item.is_featured %}checked{% endif %}
+               style="width:18px;height:18px;accent-color:var(--secondary);"/>
+        <span>⭐ <strong>Mettre en avant</strong> — affichage en grand format (tall/wide)</span>
+      </label>
+      {% if item %}
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;">
+        <input type="checkbox" name="is_active" value="1"
+               {% if item.is_active %}checked{% endif %}
+               style="width:18px;height:18px;accent-color:var(--green);"/>
+        <span>✅ <strong>Actif</strong> — visible sur le site</span>
+      </label>
+      {% endif %}
+    </div>
+
+    <!-- Boutons -->
+    <div style="display:flex;gap:12px;padding-top:16px;border-top:1px solid var(--border);">
+      <button type="submit" class="btn-sm btn-gold" style="padding:11px 28px;font-size:14px;">
+        {{ '💾 Enregistrer' if item else '✅ Uploader la photo' }}
+      </button>
+      <a href="{{ url_for('admin.gallery') }}" class="btn-sm" style="padding:11px 28px;font-size:14px;background:#f0f4f8;color:var(--primary);">
+        Annuler
+      </a>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function previewImage(input) {
+  const preview = document.getElementById('preview');
+  const img     = document.getElementById('previewImg');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; preview.style.display = 'block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+
+{% endblock %}

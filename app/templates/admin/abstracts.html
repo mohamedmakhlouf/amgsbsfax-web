@@ -1,0 +1,112 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Résumés{% endblock %}
+{% block page_title %}📄 Résumés & Exposés{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+  <p style="color:#607080;font-size:14px">{{ abstracts|length }} résumé(s)</p>
+  <a href="{{ url_for('admin.abstract_add') }}" class="btn btn-primary">➕ Ajouter un résumé</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+  <div class="flash {{ cat }}" style="margin-bottom:16px;">
+    {% if cat=='success' %}✅{% elif cat=='error' %}❌{% else %}ℹ️{% endif %} {{ msg }}
+  </div>
+  {% endfor %}
+{% endwith %}
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Auteur</th>
+        <th>Événement</th>
+        <th>Type</th>
+        <th>Prix</th>
+        <th>Fichiers</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in abstracts %}
+      <tr>
+        <td>
+          <strong>{{ a.title_fr[:50] if a.title_fr else '—' }}{% if a.title_fr and a.title_fr|length > 50 %}...{% endif %}</strong>
+          {% if a.title_ar %}
+          <br><span style="font-size:11px;color:#aab;direction:rtl;">{{ a.title_ar[:40] }}...</span>
+          {% endif %}
+        </td>
+        <td style="font-size:12px">
+          {{ a.author_name }}<br>
+          <span style="color:#607080">{{ a.author_institution or '' }}</span>
+          {% if a.author_email %}
+          <br><a href="mailto:{{ a.author_email }}" style="font-size:11px;color:var(--primary)">{{ a.author_email }}</a>
+          {% endif %}
+        </td>
+        <td style="font-size:12px">{{ a.event.title_fr[:30] if a.event else '—' }}</td>
+        <td>
+          <span class="badge-status badge-draft">
+            {{ '🎤 Oral' if a.presentation_type=='oral' else ('📋 Poster' if a.presentation_type=='poster' else '🎓 Keynote') }}
+          </span>
+        </td>
+        <td>
+          {% if a.award %}
+          <span class="badge-status badge-submitted">{{ a.award|replace('_',' ')|title }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td style="font-size:12px">
+          {% if a.pptx_url %}<a href="{{ a.pptx_url }}" target="_blank">📊 PPT</a><br>{% endif %}
+          {% if a.pdf_url %}<a href="{{ a.pdf_url }}" target="_blank">📑 PDF</a>{% endif %}
+          {% if not a.pptx_url and not a.pdf_url %}—{% endif %}
+        </td>
+        <td>
+          <span class="badge-status {% if a.is_published %}badge-confirmed{% else %}badge-draft{% endif %}">
+            {% if a.is_published %}✅ Publié{% else %}⏳ Brouillon{% endif %}
+          </span>
+        </td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:5px;min-width:100px;">
+
+            <!-- Publier / Dépublier -->
+            <form method="POST" action="{{ url_for('admin.abstract_toggle_publish', id=a.id) }}">
+              <button type="submit"
+                      class="btn-sm {% if a.is_published %}btn-gold{% else %}btn-green{% endif %}"
+                      style="width:100%;"
+                      title="{% if a.is_published %}Dépublier{% else %}Publier sur le site{% endif %}">
+                {% if a.is_published %}👁️ Dépublier{% else %}🌐 Publier{% endif %}
+              </button>
+            </form>
+
+            <!-- Modifier -->
+            <a href="{{ url_for('admin.abstract_edit', id=a.id) }}"
+               class="btn-sm btn-blue" style="width:100%;text-align:center;">✏️ Modifier</a>
+
+            <!-- Supprimer -->
+            <form method="POST" action="{{ url_for('admin.abstract_delete', id=a.id) }}"
+                  style="display:inline" onsubmit="return confirm('Supprimer ce résumé ?')">
+              <button type="submit" class="btn-sm btn-red" style="width:100%;">🗑️ Supprimer</button>
+            </form>
+
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8">
+          <div class="empty-state">
+            <div class="icon">📄</div>
+            <p>Aucun résumé soumis pour le moment</p>
+            <a href="{{ url_for('admin.abstract_add') }}" class="btn btn-primary" style="margin-top:14px">
+              Ajouter le premier résumé
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

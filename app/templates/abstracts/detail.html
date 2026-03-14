@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}{{ abstract.title_ar if session.get('lang')=='ar' and abstract.title_ar else abstract.title_fr }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-hero{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;padding:60px 40px;position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1px);background-size:28px 28px;}
+.hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;}
+.breadcrumb{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;display:flex;gap:8px;}
+.breadcrumb a{color:rgba(255,255,255,.6);text-decoration:none;}
+.breadcrumb a:hover{color:var(--secondary);}
+.ab-type-badge{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 16px;border-radius:999px;margin-bottom:16px;background:rgba(200,144,42,.2);color:var(--secondary);border:1px solid rgba(200,144,42,.3);}
+.page-hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.2;margin-bottom:20px;}
+.ab-meta-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;}
+.ab-meta-item{display:flex;align-items:center;gap:8px;font-size:14px;color:rgba(255,255,255,.8);}
+.ab-meta-item .mi{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:15px;}
+
+/* Award banner */
+.award-banner{background:linear-gradient(135deg,#ffd700,#c8902a);padding:16px 24px;display:flex;align-items:center;gap:14px;font-weight:700;font-size:15px;color:white;}
+.award-banner .ab-icon{font-size:2rem;}
+
+/* Layout */
+.ab-layout{max-width:900px;margin:0 auto;padding:48px 40px;display:grid;grid-template-columns:1fr 280px;gap:36px;align-items:start;}
+@media(max-width:768px){.ab-layout{grid-template-columns:1fr;padding:32px 16px;}.page-hero{padding:40px 16px;}}
+
+/* Content */
+.ab-section{margin-bottom:32px;}
+.ab-section h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--primary);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+.abstract-text{background:var(--light);border-radius:12px;padding:22px 26px;font-size:15px;line-height:1.9;color:#3a4a5a;border-left:4px solid var(--primary);}
+
+/* Sidebar */
+.info-card{background:white;border-radius:14px;border:1px solid var(--border);padding:22px;margin-bottom:18px;box-shadow:0 4px 16px rgba(26,74,110,.06);}
+.info-card h3{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--primary);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4f8;font-size:13px;gap:10px;}
+.info-row:last-child{border-bottom:none;}
+.info-row .lbl{color:#607080;font-weight:600;flex-shrink:0;}
+.info-row .val{color:var(--primary);font-weight:500;text-align:right;}
+
+/* File buttons */
+.file-btn{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;margin-bottom:10px;}
+.file-btn:hover{transform:translateX(4px);}
+.file-btn.pdf{background:#fde8d8;color:#b33a3a;}
+.file-btn.ppt{background:#fff3cd;color:#856404;}
+.file-btn .fb-icon{font-size:1.4rem;}
+.file-btn .fb-text small{display:block;font-size:11px;font-weight:400;opacity:.7;}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- AWARD BANNER -->
+{% if abstract.award %}
+<div class="award-banner">
+  <span class="ab-icon">{{ '🥇' if abstract.award=='1er_prix' else ('🥈' if abstract.award=='2eme_prix' else '🥉') }}</span>
+  <span>{{ '1er Prix' if abstract.award=='1er_prix' else ('2ème Prix' if abstract.award=='2eme_prix' else '3ème Prix') }} — Travail primé</span>
+</div>
+{% endif %}
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ url_for('main.index') }}">🏠 Accueil</a> ›
+      <a href="{{ url_for('abstracts.index') }}">Résumés & Exposés</a> ›
+      <span>Détail</span>
+    </div>
+    <span class="ab-type-badge">
+      {{ '🎤 Communication orale' if abstract.presentation_type=='oral' else ('📋 Poster' if abstract.presentation_type=='poster' else '🎓 Keynote') }}
+    </span>
+    <h1>{{ abstract.title_ar if session.get('lang')=='ar' and abstract.title_ar else abstract.title_fr }}</h1>
+    <div class="ab-meta-row">
+      <div class="ab-meta-item"><span class="mi">👤</span>{{ abstract.author_name }}</div>
+      {% if abstract.author_institution %}
+      <div class="ab-meta-item"><span class="mi">🏥</span>{{ abstract.author_institution }}</div>
+      {% endif %}
+      {% if abstract.event %}
+      <div class="ab-meta-item"><span class="mi">📅</span>{{ abstract.event.title_fr }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="ab-layout">
+
+  <!-- CONTENU -->
+  <div>
+    <!-- Résumé FR -->
+    {% if abstract.content_fr %}
+    <div class="ab-section">
+      <h2>📄 Résumé</h2>
+      <div class="abstract-text">{{ abstract.content_fr }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Résumé AR -->
+    {% if abstract.content_ar %}
+    <div class="ab-section">
+      <h2>📄 الملخص</h2>
+      <div class="abstract-text" dir="rtl" style="font-family:'Cairo',sans-serif;border-left:none;border-right:4px solid var(--primary);">
+        {{ abstract.content_ar }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Retour -->
+    <a href="{{ url_for('abstracts.index') }}"
+       style="display:inline-flex;align-items:center;gap:8px;color:var(--primary);font-weight:600;text-decoration:none;font-size:14px;">
+      ← Retour à la liste
+    </a>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <!-- Fichiers à télécharger -->
+    {% if abstract.pdf_url or abstract.pptx_url %}
+    <div class="info-card">
+      <h3>📎 Téléchargements</h3>
+      {% if abstract.pdf_url %}
+      <a href="{{ abstract.pdf_url }}" target="_blank" class="file-btn pdf">
+        <span class="fb-icon">📄</span>
+        <div class="fb-text">Télécharger PDF<small>Document complet</small></div>
+      </a>
+      {% endif %}
+      {% if abstract.pptx_url %}
+      <a href="{{ abstract.pptx_url }}" target="_blank" class="file-btn ppt">
+        <span class="fb-icon">📊</span>
+        <div class="fb-text">Télécharger PPT<small>Présentation slides</small></div>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Infos -->
+    <div class="info-card">
+      <h3>ℹ️ Informations</h3>
+      <div class="info-row">
+        <span class="lbl">Auteur</span>
+        <span class="val">{{ abstract.author_name }}</span>
+      </div>
+      {% if abstract.author_institution %}
+      <div class="info-row">
+        <span class="lbl">Institution</span>
+        <span class="val">{{ abstract.author_institution }}</span>
+      </div>
+      {% endif %}
+      <div class="info-row">
+        <span class="lbl">Type</span>
+        <span class="val">{{ 'Oral' if abstract.presentation_type=='oral' else ('Poster' if abstract.presentation_type=='poster' else 'Keynote') }}</span>
+      </div>
+      {% if abstract.event %}
+      <div class="info-row">
+        <span class="lbl">Événement</span>
+        <span class="val">{{ abstract.event.title_fr[:35] }}...</span>
+      </div>
+      {% endif %}
+      {% if abstract.submitted_at %}
+      <div class="info-row">
+        <span class="lbl">Soumis le</span>
+        <span class="val">{{ abstract.submitted_at.strftime('%d/%m/%Y') }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CTA Inscription -->
+    {% if abstract.event %}
+    <div style="background:linear-gradient(135deg,var(--secondary),#b07a20);border-radius:14px;padding:22px;text-align:center;color:white;">
+      <div style="font-size:1.5rem;margin-bottom:8px;">🎟️</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:8px;color:white;">Participer à cet événement</h3>
+      <a href="{{ url_for('register.index') }}?event_id={{ abstract.event.id }}"
+         style="display:block;background:white;color:var(--secondary);padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-top:12px;">
+        ✅ S'inscrire
+      </a>
+    </div>
+    {% endif %}
+
+  </aside>
+</div>
+
+{% endblock %}

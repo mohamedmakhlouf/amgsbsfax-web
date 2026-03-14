@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmation d'inscription — AMGSBS Sfax</title>
+<style>
+  body{margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;color:#2c3e50;}
+  .wrapper{max-width:620px;margin:32px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.1);}
+  /* HEADER */
+  .header{background:linear-gradient(135deg,#0d2035,#1a4a6e);padding:36px 40px;text-align:center;}
+  .header img{height:60px;margin-bottom:16px;}
+  .header h1{font-size:22px;color:white;margin:0 0 6px;font-weight:700;}
+  .header p{font-size:13px;color:rgba(255,255,255,.7);margin:0;}
+  /* SUCCESS BANNER */
+  .success-banner{background:#d4edda;border-bottom:3px solid #28a745;padding:20px 40px;display:flex;align-items:center;gap:16px;}
+  .success-banner .sb-icon{font-size:2.5rem;}
+  .success-banner h2{margin:0 0 4px;font-size:18px;color:#155724;}
+  .success-banner p{margin:0;font-size:13px;color:#155724;opacity:.8;}
+  .ref-badge{background:#155724;color:white;padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;display:inline-block;margin-top:6px;}
+  /* BODY */
+  .body{padding:32px 40px;}
+  .greeting{font-size:16px;margin-bottom:24px;line-height:1.6;}
+  /* EVENT CARD */
+  .event-card{background:linear-gradient(135deg,#1a4a6e,#1a6e8a);border-radius:12px;padding:24px;color:white;margin-bottom:24px;display:flex;gap:20px;align-items:flex-start;}
+  .event-date{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 16px;text-align:center;flex-shrink:0;min-width:60px;}
+  .event-date .day{font-size:2rem;font-weight:900;line-height:1;color:#c8902a;}
+  .event-date .month{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px;}
+  .event-info h3{margin:0 0 8px;font-size:16px;font-weight:700;}
+  .event-info p{margin:0 0 4px;font-size:13px;opacity:.85;display:flex;align-items:center;gap:6px;}
+  .event-type{display:inline-block;background:rgba(200,144,42,.3);color:#ffd700;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:999px;margin-bottom:8px;}
+  /* INFO SECTIONS */
+  .section{margin-bottom:24px;}
+  .section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#607080;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #f0f4f8;}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .info-item{background:#f9fbfd;border-radius:8px;padding:10px 14px;}
+  .info-item .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#aab;margin-bottom:3px;}
+  .info-item .val{font-size:13px;font-weight:600;color:#1a4a6e;}
+  /* PAYMENT */
+  .payment-card{border-radius:10px;padding:16px 20px;margin-bottom:8px;border-left:4px solid;}
+  .payment-virement{background:#e8f4fd;border-color:#1a4a6e;}
+  .payment-cheque{background:#fff3e0;border-color:#c8902a;}
+  .payment-especes{background:#e8f5e9;border-color:#2e7d5e;}
+  .payment-enligne{background:#f3e5f5;border-color:#7b1fa2;}
+  .payment-card h4{margin:0 0 6px;font-size:14px;font-weight:700;}
+  .payment-card p{margin:0;font-size:13px;line-height:1.6;color:#3a4a5a;}
+  /* STEPS */
+  .steps{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+  .step{display:flex;gap:14px;align-items:flex-start;}
+  .step-num{width:28px;height:28px;border-radius:50%;background:#1a4a6e;color:white;font-size:12px;font-weight:700;display:grid;place-items:center;flex-shrink:0;margin-top:1px;}
+  .step p{margin:0;font-size:13px;line-height:1.6;color:#3a4a5a;}
+  /* CTA */
+  .cta{text-align:center;margin:28px 0;}
+  .cta a{background:#c8902a;color:white;padding:13px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;}
+  /* FOOTER */
+  .footer{background:#f0f4f8;padding:24px 40px;text-align:center;border-top:1px solid #d0dce8;}
+  .footer-links{display:flex;justify-content:center;gap:20px;margin-bottom:12px;}
+  .footer-links a{font-size:12px;color:#1a4a6e;text-decoration:none;}
+  .footer p{font-size:11px;color:#aab;margin:4px 0;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>⚕️ AMGSBS Sfax</h1>
+    <p>Association Médicale du Groupement de Santé de Base de Sfax</p>
+  </div>
+
+  <!-- SUCCESS BANNER -->
+  <div class="success-banner">
+    <div class="sb-icon">✅</div>
+    <div>
+      <h2>Inscription enregistrée !</h2>
+      <p>Votre demande d'inscription a bien été reçue.</p>
+      <span class="ref-badge">Réf. #{{ "%05d" | format(registration.id) }}</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+    <p class="greeting">
+      Bonjour <strong>{{ registration.sigle or 'Dr.' }} {{ registration.first_name }} {{ registration.last_name }}</strong>,<br>
+      Nous avons bien reçu votre inscription. Voici le récapitulatif de votre dossier :
+    </p>
+
+    <!-- ÉVÉNEMENT -->
+    {% if registration.event %}
+    <div class="event-card">
+      {% if registration.event.date_start %}
+      <div class="event-date">
+        <div class="day">{{ registration.event.date_start.strftime('%d') }}</div>
+        <div class="month">{{ registration.event.date_start.strftime('%b %Y') }}</div>
+      </div>
+      {% endif %}
+      <div class="event-info">
+        <div class="event-type">
+          {{ '🏛️ Congrès' if registration.event.event_type == 'congres' else '🎓 Séminaire' }}
+        </div>
+        <h3>{{ registration.event.title_fr }}</h3>
+        {% if registration.event.city %}
+        <p>📍 {{ registration.event.city }}{% if registration.event.address %} — {{ registration.event.address }}{% endif %}</p>
+        {% endif %}
+        {% if registration.event.date_end and registration.event.date_end != registration.event.date_start %}
+        <p>📅 Du {{ registration.event.date_start.strftime('%d/%m/%Y') }} au {{ registration.event.date_end.strftime('%d/%m/%Y') }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- IDENTITÉ -->
+    <div class="section">
+      <div class="section-title">👤 Identité</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="lbl">Nom complet</div>
+          <div class="val">{{ registration.sigle or '' }} {{ registration.first_name }} {{ registration.last_name }}</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Spécialité</div>
+          <div class="val">{{ registration.specialty or '—' }}</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Email</div>
+          <div class="val">{{ registration.email }}</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Téléphone</div>
+          <div class="val">{{ registration.phone or '—' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    {% if registration.hotel_requested or registration.transport_needed %}
+    <div class="section">
+      <div class="section-title">🏨 Services demandés</div>
+      <div class="info-grid">
+        {% if registration.hotel_requested %}
+        <div class="info-item">
+          <div class="lbl">Hébergement</div>
+          <div class="val">✅ {{ registration.nights_count or 1 }} nuit(s) — {{ registration.room_type or 'Standard' }}</div>
+        </div>
+        {% endif %}
+        {% if registration.transport_needed %}
+        <div class="info-item">
+          <div class="lbl">Transport</div>
+          <div class="val">🚌 Demandé</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- PAIEMENT -->
+    <div class="section">
+      <div class="section-title">💳 Paiement</div>
+      {% set pm = registration.payment_method %}
+      <div class="payment-card payment-{{ pm }}">
+        {% if pm == 'virement' %}
+        <h4>🏦 Virement bancaire</h4>
+        <p>Veuillez effectuer un virement au compte AMGSBS Sfax et envoyer le reçu par email à <strong>amgsbsfax@gmail.com</strong> avec votre référence <strong>#{{ "%05d" | format(registration.id) }}</strong>.</p>
+        {% elif pm == 'cheque' %}
+        <h4>📝 Chèque</h4>
+        <p>Libellé à l'ordre de <strong>AMGSBS Sfax</strong>. Envoyez-le au siège avec votre référence <strong>#{{ "%05d" | format(registration.id) }}</strong>.</p>
+        {% elif pm == 'especes' %}
+        <h4>💵 Espèces</h4>
+        <p>Paiement en espèces à régler lors de votre arrivée à l'événement. Référence : <strong>#{{ "%05d" | format(registration.id) }}</strong>.</p>
+        {% else %}
+        <h4>💳 Paiement en ligne</h4>
+        <p>Votre paiement sera traité en ligne. Référence : <strong>#{{ "%05d" | format(registration.id) }}</strong>.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ÉTAPES SUIVANTES -->
+    <div class="section">
+      <div class="section-title">📋 Prochaines étapes</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <p>Conservez votre référence <strong>#{{ "%05d" | format(registration.id) }}</strong> pour tout suivi de dossier.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <p>Procédez au règlement selon le mode de paiement choisi.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <p>Vous recevrez un email de <strong>confirmation définitive</strong> après validation de votre dossier.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <p>Pour toute question, contactez-nous à <strong>amgsbsfax@gmail.com</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <a href="mailto:amgsbsfax@gmail.com">✉️ Contacter l'organisation</a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-links">
+      <a href="mailto:amgsbsfax@gmail.com">📧 amgsbsfax@gmail.com</a>
+      <a href="tel:+21672000000">📞 +216 72 XXX XXX</a>
+    </div>
+    <p>Association Médicale du Groupement de Santé de Base de Sfax</p>
+    <p>Avenue de la République, Sfax 3000, Tunisie</p>
+    <p style="margin-top:8px;color:#ccd;">© {{ registration.registered_at.year if registration.registered_at else '2026' }} AMGSBS Sfax — Tous droits réservés</p>
+  </div>
+
+</div>
+</body>
+</html>

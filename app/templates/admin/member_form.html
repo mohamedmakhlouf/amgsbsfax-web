@@ -1,0 +1,63 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{% if member %}Modifier{% else %}Ajouter{% endif %} Membre{% endblock %}
+{% block page_title %}{% if member %}✏️ Modifier le membre{% else %}➕ Ajouter un membre{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:700px">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="card">
+      <h3>👤 Informations personnelles</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom complet (Français) *</label>
+          <input type="text" name="name_fr" required value="{{ member.name_fr if member else '' }}" placeholder="Dr. Ahmed Ben Ali">
+        </div>
+        <div class="form-group">
+          <label>الاسم الكامل (العربية)</label>
+          <input type="text" name="name_ar" value="{{ member.name_ar if member else '' }}" style="direction:rtl" placeholder="د. أحمد بن علي">
+        </div>
+        <div class="form-group">
+          <label>Rôle / Fonction (Français) *</label>
+          <input type="text" name="role_fr" required value="{{ member.role_fr if member else '' }}" placeholder="Président">
+        </div>
+        <div class="form-group">
+          <label>الدور / المنصب (العربية)</label>
+          <input type="text" name="role_ar" value="{{ member.role_ar if member else '' }}" style="direction:rtl" placeholder="رئيس">
+        </div>
+        <div class="form-group full">
+          <label>Biographie (Français)</label>
+          <textarea name="bio_fr" rows="3" placeholder="Courte biographie...">{{ member.bio_fr if member else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>السيرة الذاتية (العربية)</label>
+          <textarea name="bio_ar" rows="3" style="direction:rtl">{{ member.bio_ar if member else '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Ordre d'affichage</label>
+          <input type="number" name="order" value="{{ member.order if member else 1 }}" min="1">
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select name="is_active">
+            <option value="1" {% if not member or member.is_active %}selected{% endif %}>✅ Actif</option>
+            <option value="0" {% if member and not member.is_active %}selected{% endif %}>❌ Inactif</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Photo du membre</label>
+          {% if member and member.photo_url %}
+            <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px">
+              <img src="{{ member.photo_url }}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid var(--border)">
+              <span style="font-size:12px;color:#607080">Photo actuelle — téléchargez une nouvelle pour remplacer</span>
+            </div>
+          {% endif %}
+          <input type="file" name="photo" accept="image/*">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button type="submit" class="btn btn-primary">💾 {% if member %}Enregistrer les modifications{% else %}Ajouter le membre{% endif %}</button>
+      <a href="{{ url_for('admin.members') }}" class="btn btn-gray">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

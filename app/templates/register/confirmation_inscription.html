@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmation d'inscription — AMGSBS Sfax</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f4f7fb; color:#2c3e50; }
+  .wrapper { max-width:620px; margin:0 auto; padding:32px 16px; }
+
+  /* HEADER */
+  .email-header { background:linear-gradient(135deg,#0d2035,#1a4a6e); border-radius:16px 16px 0 0; padding:36px 40px; text-align:center; }
+  .email-header img { width:64px; height:64px; border-radius:50%; margin-bottom:14px; }
+  .email-header .logo-placeholder { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,.15); display:inline-flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:14px; }
+  .email-header h1 { font-size:22px; color:white; font-weight:700; margin-bottom:6px; }
+  .email-header p { font-size:13px; color:rgba(255,255,255,.7); }
+
+  /* SUCCESS BANNER */
+  .success-banner { background:#2e7d5e; padding:24px 40px; text-align:center; }
+  .success-banner .check { font-size:2.5rem; margin-bottom:8px; display:block; }
+  .success-banner h2 { font-size:18px; color:white; font-weight:700; margin-bottom:4px; }
+  .success-banner p { font-size:13px; color:rgba(255,255,255,.85); }
+  .ref-badge { display:inline-block; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.4); color:white; font-size:13px; font-weight:700; padding:5px 18px; border-radius:999px; margin-top:10px; letter-spacing:1px; }
+
+  /* BODY */
+  .email-body { background:white; padding:36px 40px; }
+  .greeting { font-size:16px; margin-bottom:20px; }
+  .greeting strong { color:#1a4a6e; }
+
+  /* EVENT BOX */
+  .event-box { background:linear-gradient(135deg,#e8f4f8,#d0eaf8); border:2px solid #1a4a6e; border-radius:14px; padding:20px 24px; margin-bottom:28px; display:flex; gap:20px; align-items:center; }
+  .event-date { background:#1a4a6e; color:white; border-radius:10px; padding:10px 14px; text-align:center; flex-shrink:0; min-width:60px; }
+  .event-date .day { font-size:1.8rem; font-weight:700; line-height:1; }
+  .event-date .month { font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:.8; margin-top:2px; }
+  .event-info .type { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; background:#1a4a6e; color:white; padding:2px 10px; border-radius:999px; display:inline-block; margin-bottom:6px; }
+  .event-info .title { font-size:15px; font-weight:700; color:#1a4a6e; margin-bottom:4px; }
+  .event-info .location { font-size:13px; color:#607080; }
+
+  /* SECTION */
+  .section { margin-bottom:28px; }
+  .section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#c8902a; border-bottom:2px solid #e8f4f8; padding-bottom:8px; margin-bottom:14px; }
+  .info-table { width:100%; border-collapse:collapse; }
+  .info-table tr td { padding:9px 12px; font-size:13px; border-bottom:1px solid #f0f4f8; }
+  .info-table tr:last-child td { border-bottom:none; }
+  .info-table tr td:first-child { color:#607080; font-weight:600; width:45%; }
+  .info-table tr td:last-child { color:#1a4a6e; font-weight:500; }
+  .info-table tr:nth-child(even) td { background:#f9fbfd; }
+
+  /* STATUS */
+  .status-row { display:flex; align-items:center; justify-content:space-between; background:#fef9f0; border:1px solid #f0d090; border-radius:10px; padding:14px 18px; margin-bottom:24px; }
+  .status-label { font-size:13px; color:#607080; }
+  .status-badge { background:#fef3cd; color:#856404; font-size:12px; font-weight:700; padding:4px 14px; border-radius:999px; }
+
+  /* PAYMENT */
+  .payment-box { border-radius:12px; padding:16px 20px; margin-bottom:24px; }
+  .payment-box.virement { background:#e3f2fd; border-left:4px solid #1565c0; }
+  .payment-box.cheque   { background:#f3e5f5; border-left:4px solid #6a1b9a; }
+  .payment-box.especes  { background:#f0faf5; border-left:4px solid #2e7d5e; }
+  .payment-box.enligne  { background:#fef9f0; border-left:4px solid #c8902a; }
+  .payment-box .pb-title { font-size:14px; font-weight:700; color:#1a4a6e; margin-bottom:6px; }
+  .payment-box .pb-body  { font-size:13px; color:#607080; line-height:1.6; }
+  .payment-box .pb-body strong { color:#1a4a6e; }
+
+  /* STEPS */
+  .steps { background:#f9fbfd; border-radius:12px; padding:20px 24px; margin-bottom:24px; }
+  .steps h4 { font-size:13px; font-weight:700; color:#1a4a6e; margin-bottom:14px; }
+  .step-item { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; font-size:13px; color:#2c3e50; }
+  .step-item:last-child { margin-bottom:0; }
+  .step-num { width:24px; height:24px; border-radius:50%; background:#1a4a6e; color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+
+  /* FOOTER */
+  .email-footer { background:#0d2035; border-radius:0 0 16px 16px; padding:28px 40px; text-align:center; }
+  .email-footer p { font-size:12px; color:rgba(255,255,255,.5); line-height:1.7; }
+  .email-footer a { color:#c8902a; text-decoration:none; }
+  .email-footer .social { margin:14px 0 10px; font-size:18px; }
+  .email-footer .social a { margin:0 6px; opacity:.7; text-decoration:none; }
+  .email-footer .social a:hover { opacity:1; }
+  .divider { height:1px; background:rgba(255,255,255,.1); margin:16px 0; }
+
+  /* CTA BUTTON */
+  .cta-btn { display:inline-block; background:#c8902a; color:white; padding:12px 32px; border-radius:10px; text-decoration:none; font-weight:700; font-size:14px; margin:16px auto; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="email-header">
+    <div class="logo-placeholder">🏥</div>
+    <h1>AMGSBS Sfax — Tunisie</h1>
+    <p>Association Médicale du Groupement de Santé de Base de Sfax</p>
+  </div>
+
+  <!-- SUCCESS BANNER -->
+  <div class="success-banner">
+    <span class="check">✅</span>
+    <h2>Inscription enregistrée avec succès !</h2>
+    <p>Votre demande d'inscription a bien été reçue et est en cours de traitement.</p>
+    <div class="ref-badge">Référence : #{{ '%05d'|format(registration.id) }}</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="email-body">
+
+    <p class="greeting">
+      Bonjour <strong>{{ registration.sigle or '' }} {{ registration.first_name }} {{ registration.last_name }}</strong>,<br><br>
+      Nous avons bien reçu votre inscription et nous vous en remercions. Voici le récapitulatif de votre demande :
+    </p>
+
+    <!-- ÉVÉNEMENT -->
+    {% if registration.event %}
+    <div class="event-box">
+      <div class="event-date">
+        <div class="day">{{ registration.event.date_start.strftime('%d') if registration.event.date_start else '—' }}</div>
+        <div class="month">{{ registration.event.date_start.strftime('%b %Y') if registration.event.date_start else '' }}</div>
+      </div>
+      <div class="event-info">
+        <span class="type">{{ 'Congrès' if registration.event.event_type=='congres' else 'Séminaire' }}</span>
+        <div class="title">{{ registration.event.title_fr }}</div>
+        {% if registration.event.location %}
+        <div class="location">📍 {{ registration.event.location }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- STATUT -->
+    <div class="status-row">
+      <span class="status-label">Statut de votre inscription</span>
+      <span class="status-badge">⏳ En attente de validation</span>
+    </div>
+
+    <!-- IDENTITÉ -->
+    <div class="section">
+      <div class="section-title">👤 Informations personnelles</div>
+      <table class="info-table">
+        <tr><td>Nom complet</td><td>{{ registration.sigle or '' }} {{ registration.first_name }} {{ registration.last_name }}</td></tr>
+        <tr><td>Spécialité</td><td>{{ registration.specialty or '—' }}</td></tr>
+        <tr><td>Établissement</td><td>{{ registration.institution or '—' }}</td></tr>
+        <tr><td>Email</td><td>{{ registration.email }}</td></tr>
+        <tr><td>Téléphone</td><td>{{ registration.phone or '—' }}</td></tr>
+      </table>
+    </div>
+
+    <!-- SERVICES -->
+    {% if registration.hotel_requested or registration.transport_needed %}
+    <div class="section">
+      <div class="section-title">🏨 Services demandés</div>
+      <table class="info-table">
+        {% if registration.hotel_requested %}
+        <tr>
+          <td>Hébergement</td>
+          <td>✅ {{ 'Single' if registration.room_type=='single' else 'Double' }} — {{ registration.nights_count }} nuit(s)</td>
+        </tr>
+        {% endif %}
+        {% if registration.transport_needed %}
+        <tr><td>Transport</td><td>✅ Demandé</td></tr>
+        {% endif %}
+        {% if registration.with_spouse %}
+        <tr><td>Conjoint(e)</td><td>✅ Accompagnant</td></tr>
+        {% endif %}
+        {% if registration.children_count %}
+        <tr><td>Enfants</td><td>{{ registration.children_count }}</td></tr>
+        {% endif %}
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- PAIEMENT -->
+    <div class="section">
+      <div class="section-title">💳 Modalité de paiement</div>
+      {% if registration.payment_method == 'virement' %}
+      <div class="payment-box virement">
+        <div class="pb-title">🏦 Virement bancaire</div>
+        <div class="pb-body">Veuillez effectuer le virement du montant de l'inscription au compte de l'association en mentionnant votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>. Coordonnées bancaires communiquées sur demande.</div>
+      </div>
+      {% elif registration.payment_method == 'cheque' %}
+      <div class="payment-box cheque">
+        <div class="pb-title">📝 Chèque</div>
+        <div class="pb-body">Envoyez votre chèque à l'ordre de <strong>AMGSBS Sfax</strong> à notre siège social, Avenue de la République, Sfax 3000, en mentionnant la référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.</div>
+      </div>
+      {% elif registration.payment_method == 'especes' %}
+      <div class="payment-box especes">
+        <div class="pb-title">💵 Espèces</div>
+        <div class="pb-body">Le règlement en espèces sera effectué à l'accueil le jour de l'événement. Présentez votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong> à notre équipe.</div>
+      </div>
+      {% elif registration.payment_method == 'enligne' %}
+      <div class="payment-box enligne">
+        <div class="pb-title">💳 Paiement en ligne</div>
+        <div class="pb-body">Vous recevrez sous peu un email distinct contenant le lien de paiement sécurisé pour finaliser votre inscription.</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- PROCHAINES ÉTAPES -->
+    <div class="steps">
+      <h4>📋 Prochaines étapes</h4>
+      <div class="step-item"><div class="step-num">1</div><div>Effectuez le règlement selon la méthode de paiement choisie.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div>Notre administration validera votre dossier sous <strong>48h</strong> et vous enverra une confirmation définitive.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div>Présentez-vous le jour de l'événement avec votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.</div></div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;">
+      <p style="font-size:13px;color:#607080;margin-bottom:12px;">Pour toute question, n'hésitez pas à nous contacter :</p>
+      <a href="mailto:amgsbsfax@gmail.com" class="cta-btn">📧 Nous contacter</a>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="email-footer">
+    <div class="social">
+      <a href="#">📘</a>
+      <a href="#">📸</a>
+    </div>
+    <div class="divider"></div>
+    <p>
+      <strong style="color:rgba(255,255,255,.8);">AMGSBS Sfax — Tunisie</strong><br>
+      Avenue de la République, Sfax 3000, Tunisie<br>
+      <a href="mailto:amgsbsfax@gmail.com">amgsbsfax@gmail.com</a> | +216 72 XXX XXX
+    </p>
+    <div class="divider"></div>
+    <p style="font-size:11px;">
+      Cet email a été envoyé automatiquement suite à votre inscription sur notre plateforme.<br>
+      © {{ registration.registered_at.year if registration.registered_at else 2025 }} AMGSBS Sfax — Tous droits réservés.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

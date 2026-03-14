@@ -1,0 +1,720 @@
+{# ---app\templates\inscription.html---01 mars 2026--- #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inscription — AMGSBS Sfax-Tunisie</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0f2d4a;
+      --teal:   #1a6b7c;
+      --gold:   #c8973a;
+      --cream:  #f7f4ef;
+      --white:  #ffffff;
+      --text:   #2a2a2a;
+      --muted:  #6b7280;
+      --border: #ddd8d0;
+      --error:  #c0392b;
+      --success:#1e7e60;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 12px rgba(0,0,0,.06);
+    }
+    .nav-brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; }
+    .nav-logo {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--navy); display: grid; place-items: center;
+      font-family: 'Cormorant Garamond', serif; color: var(--white);
+      font-size: 1.1rem; font-weight: 700;
+    }
+    .nav-title { line-height: 1.2; }
+    .nav-title strong { display: block; font-size: .95rem; color: var(--navy); }
+    .nav-title span   { font-size: .75rem; color: var(--muted); }
+    .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: .88rem; color: var(--muted); transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--navy); font-weight: 500; }
+    .nav-admin {
+      background: var(--gold); color: var(--white); border: none;
+      padding: .45rem 1rem; border-radius: 6px; font-size: .82rem;
+      cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: .4rem;
+    }
+
+    /* ─── HERO BANNER ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+      padding: 4rem 2rem 3.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: var(--white);
+      font-weight: 700;
+      position: relative;
+    }
+    .hero p {
+      color: rgba(255,255,255,.75);
+      margin-top: .75rem;
+      font-size: 1rem;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      color: var(--white); font-size: .78rem; padding: .3rem .85rem;
+      border-radius: 999px; margin-bottom: 1rem; position: relative;
+    }
+
+    /* ─── TABS ─── */
+    .tabs-wrap {
+      display: flex; justify-content: center;
+      gap: 0; background: var(--white);
+      border-bottom: 2px solid var(--border);
+      position: sticky; top: 68px; z-index: 90;
+    }
+    .tab-btn {
+      padding: 1rem 2.5rem; border: none; background: none;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all .2s; margin-bottom: -2px;
+    }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 500; }
+    .tab-btn:hover:not(.active) { color: var(--navy); }
+
+    /* ─── MAIN LAYOUT ─── */
+    .page-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+      display: grid; grid-template-columns: 1fr 360px; gap: 2.5rem;
+      align-items: start;
+    }
+    @media(max-width:860px){ .page-wrap{ grid-template-columns:1fr; } }
+
+    /* ─── FORM CARD ─── */
+    .form-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0,0,0,.07);
+      padding: 2.5rem;
+      animation: fadeUp .5s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .form-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; color: var(--navy); font-weight: 600;
+      margin-bottom: 1.75rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-section-title span {
+      display: block; font-family: 'DM Sans', sans-serif;
+      font-size: .8rem; color: var(--muted); font-weight: 400;
+      margin-top: .2rem;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media(max-width:580px){ .form-row{ grid-template-columns:1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.25rem; }
+    .field label { font-size: .82rem; font-weight: 500; color: var(--navy); letter-spacing: .02em; text-transform: uppercase; }
+    .field label .req { color: var(--gold); margin-left: 2px; }
+    .field input, .field select, .field textarea {
+      border: 1.5px solid var(--border);
+      border-radius: 8px; padding: .7rem 1rem;
+      font-family: 'DM Sans', sans-serif; font-size: .93rem;
+      color: var(--text); background: var(--cream);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none; width: 100%;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(26,107,124,.1);
+      background: var(--white);
+    }
+    .field input.error, .field select.error { border-color: var(--error); }
+    .field .err-msg { font-size: .78rem; color: var(--error); display: none; }
+    .field input.error ~ .err-msg,
+    .field select.error ~ .err-msg { display: block; }
+    .field textarea { resize: vertical; min-height: 90px; }
+    .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
+
+    /* event selector */
+    .event-cards { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.25rem; }
+    .event-card {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 1rem 1.2rem; cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; gap: 1rem;
+    }
+    .event-card:hover { border-color: var(--teal); background: #f0f8fa; }
+    .event-card.selected { border-color: var(--teal); background: rgba(26,107,124,.06); }
+    .event-card input[type=radio] { accent-color: var(--teal); width: 16px; height: 16px; flex-shrink: 0; }
+    .event-card-info { flex: 1; }
+    .event-card-name { font-weight: 500; font-size: .93rem; color: var(--navy); }
+    .event-card-meta { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+    .event-card-badge {
+      font-size: .72rem; padding: .2rem .6rem; border-radius: 999px;
+      background: var(--navy); color: var(--white); flex-shrink: 0;
+    }
+    .event-card-badge.congres { background: var(--gold); }
+
+    /* file upload */
+    .upload-area {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 1.5rem; text-align: center; cursor: pointer;
+      transition: all .2s; background: var(--cream);
+    }
+    .upload-area:hover { border-color: var(--teal); background: #f0f8fa; }
+    .upload-area p { font-size: .85rem; color: var(--muted); margin-top: .4rem; }
+    .upload-area strong { color: var(--navy); font-size: .9rem; }
+    .upload-icon { font-size: 1.8rem; }
+
+    /* section divider */
+    .section-divider {
+      font-size: .78rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .08em;
+      display: flex; align-items: center; gap: .75rem;
+      margin: 1.75rem 0 1.25rem;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* submit btn */
+    .btn-submit {
+      width: 100%; padding: .9rem; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, var(--navy), var(--teal));
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 500; cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-top: .5rem;
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+    }
+    .btn-submit:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+
+    .terms { font-size: .78rem; color: var(--muted); text-align: center; margin-top: .75rem; }
+    .terms a { color: var(--teal); text-decoration: none; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .info-card {
+      background: var(--white); border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      padding: 1.5rem;
+      animation: fadeUp .5s .1s ease both;
+    }
+    .info-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; color: var(--navy);
+      margin-bottom: 1rem; padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .upcoming-event {
+      border-left: 3px solid var(--teal);
+      padding: .75rem 1rem; margin-bottom: .75rem;
+      background: #f5fcfd; border-radius: 0 8px 8px 0;
+    }
+    .upcoming-event:last-child { margin-bottom: 0; }
+    .upcoming-event .ev-date {
+      font-size: .75rem; color: var(--teal); font-weight: 500; text-transform: uppercase;
+    }
+    .upcoming-event .ev-name { font-size: .9rem; color: var(--navy); font-weight: 500; margin-top: .15rem; }
+    .upcoming-event .ev-loc  { font-size: .78rem; color: var(--muted); }
+
+    .steps { list-style: none; counter-reset: steps; }
+    .steps li {
+      counter-increment: steps;
+      display: flex; gap: .75rem; align-items: flex-start;
+      margin-bottom: 1rem; font-size: .88rem; color: var(--text);
+    }
+    .steps li::before {
+      content: counter(steps);
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--navy); color: var(--white);
+      font-size: .72rem; font-weight: 600;
+      display: grid; place-items: center; flex-shrink: 0;
+      margin-top: .1rem;
+    }
+
+    .contact-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; font-size: .88rem; }
+    .contact-row:last-child { margin-bottom: 0; }
+    .contact-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--cream); display: grid; place-items: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-row strong { display: block; font-size: .78rem; color: var(--muted); }
+    .contact-row span   { color: var(--navy); font-size: .88rem; }
+
+    /* ─── SUCCESS OVERLAY ─── */
+    .success-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15,45,74,.7); backdrop-filter: blur(4px);
+      z-index: 999; place-items: center;
+    }
+    .success-overlay.show { display: grid; }
+    .success-box {
+      background: var(--white); border-radius: 20px;
+      padding: 3rem 2.5rem; text-align: center;
+      max-width: 420px; width: 90%;
+      animation: popIn .35s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(.8); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--navy));
+      display: grid; place-items: center; margin: 0 auto 1.25rem;
+      font-size: 2rem;
+    }
+    .success-box h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem; color: var(--navy); margin-bottom: .5rem;
+    }
+    .success-box p { color: var(--muted); font-size: .92rem; line-height: 1.6; }
+    .btn-close-success {
+      margin-top: 1.5rem; padding: .7rem 2rem; border: none; border-radius: 8px;
+      background: var(--navy); color: var(--white); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-logo">A</div>
+    <div class="nav-title">
+      <strong>AMGSBS Sfax-Tunisie</strong>
+      <span>Groupement de Santé de Base — Sfax</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Accueil</a></li>
+    <li><a href="/events">Séminaires &amp; Congrès</a></li>
+    <li><a href="/inscription" class="active">Inscription</a></li>
+    <li><a href="/resumes">Résumés &amp; Exposés</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+  <button class="nav-admin">🔧 Admin</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📋 Formulaire d'inscription en ligne</div>
+  <h1>Inscription</h1>
+  <p>Rejoignez-nous pour nos séminaires, congrès et devenez membre AMGSBS</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" onclick="switchTab('evenement', this)">📅 Événement</button>
+  <button class="tab-btn"       onclick="switchTab('membre',    this)">🏥 Membre</button>
+</div>
+
+<!-- MAIN -->
+<div class="page-wrap">
+
+  <!-- FORM CARD -->
+  <div class="form-card">
+
+    <!-- ══════════ ONGLET ÉVÉNEMENT ══════════ -->
+    <div class="tab-panel active" id="panel-evenement">
+      <div class="form-section-title">
+        Inscription à un Événement
+        <span>Remplissez le formulaire pour vous inscrire à un séminaire ou congrès</span>
+      </div>
+
+      <div class="section-divider">Choisir un événement</div>
+
+      <div class="event-cards" id="eventCards">
+        <label class="event-card" onclick="selectCard(this)">
+          <input type="radio" name="event" value="1"/>
+          <div class="event-card-info">
+            <div class="event-card-name">Séminaire de Médecine Générale</div>
+            <div class="event-card-meta">📅 15 Mars 2025 &nbsp;|&nbsp; 📍 Sfax, Hôtel Novotel</div>
+          </div>
+          <span class="event-card-badge">Séminaire</span>
+        </label>
+        <label class="event-card" onclick="selectCard(this)">
+          <input type="radio" name="event" value="2"/>
+          <div class="event-card-info">
+            <div class="event-card-name">Congrès National de Santé de Base</div>
+            <div class="event-card-meta">📅 22–23 Avril 2025 &nbsp;|&nbsp; 📍 Sfax, Centre des Congrès</div>
+          </div>
+          <span class="event-card-badge congres">Congrès</span>
+        </label>
+        <label class="event-card" onclick="selectCard(this)">
+          <input type="radio" name="event" value="3"/>
+          <div class="event-card-info">
+            <div class="event-card-name">Atelier Pédiatrie Communautaire</div>
+            <div class="event-card-meta">📅 10 Mai 2025 &nbsp;|&nbsp; 📍 Sfax, CSSB</div>
+          </div>
+          <span class="event-card-badge">Séminaire</span>
+        </label>
+      </div>
+
+      <div class="section-divider">Informations personnelles</div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="ev-nom" placeholder="Votre nom"/>
+          <span class="err-msg">Champ requis</span>
+        </div>
+        <div class="field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="ev-prenom" placeholder="Votre prénom"/>
+          <span class="err-msg">Champ requis</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="ev-email" placeholder="exemple@email.com"/>
+          <span class="err-msg">Email invalide</span>
+        </div>
+        <div class="field">
+          <label>Téléphone <span class="req">*</span></label>
+          <input type="tel" id="ev-tel" placeholder="+216 XX XXX XXX"/>
+          <span class="err-msg">Champ requis</span>
+        </div>
+      </div>
+
+      <div class="section-divider">Profil professionnel</div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Spécialité médicale <span class="req">*</span></label>
+          <select id="ev-specialite">
+            <option value="">— Sélectionner —</option>
+            <option>Médecine Générale</option>
+            <option>Médecine de Famille</option>
+            <option>Pédiatrie</option>
+            <option>Gynécologie</option>
+            <option>Cardiologie</option>
+            <option>Dermatologie</option>
+            <option>Médecine Interne</option>
+            <option>Autre</option>
+          </select>
+          <span class="err-msg">Veuillez sélectionner</span>
+        </div>
+        <div class="field">
+          <label>Grade / Titre</label>
+          <select>
+            <option value="">— Sélectionner —</option>
+            <option>Médecin Généraliste</option>
+            <option>Spécialiste</option>
+            <option>Résident</option>
+            <option>Interne</option>
+            <option>Professeur</option>
+            <option>Maître de Conférences</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Établissement / Structure de santé <span class="req">*</span></label>
+        <input type="text" id="ev-etablissement" placeholder="ex: CSB de Sfax, Hôpital Hédi Chaker…"/>
+        <span class="err-msg">Champ requis</span>
+      </div>
+
+      <div class="field">
+        <label>Gouvernorat</label>
+        <select>
+          <option value="">— Sélectionner —</option>
+          <option>Sfax</option><option>Tunis</option><option>Sousse</option>
+          <option>Bizerte</option><option>Nabeul</option><option>Monastir</option>
+          <option>Gabès</option><option>Médenine</option><option>Autre</option>
+        </select>
+      </div>
+
+      <div class="section-divider">Informations complémentaires</div>
+
+      <div class="field">
+        <label>Besoins spéciaux / Remarques</label>
+        <textarea placeholder="Régime alimentaire, accessibilité, questions particulières…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Justificatif professionnel (optionnel)</label>
+        <div class="upload-area" onclick="document.getElementById('fileEv').click()">
+          <div class="upload-icon">📎</div>
+          <strong>Cliquez pour télécharger</strong>
+          <p>PDF, JPG, PNG — max 5 Mo</p>
+        </div>
+        <input type="file" id="fileEv" style="display:none" accept=".pdf,.jpg,.png" onchange="showFile(this,'fileEvName')"/>
+        <p id="fileEvName" style="font-size:.8rem;color:var(--teal);margin-top:.3rem;"></p>
+      </div>
+
+      <button class="btn-submit" onclick="submitForm()">
+        ✅ Confirmer mon inscription
+      </button>
+      <p class="terms">En soumettant ce formulaire, vous acceptez nos <a href="#">conditions d'utilisation</a>.</p>
+    </div>
+
+    <!-- ══════════ ONGLET MEMBRE ══════════ -->
+    <div class="tab-panel" id="panel-membre">
+      <div class="form-section-title">
+        Adhésion comme Membre
+        <span>Rejoignez l'AMGSBS et bénéficiez de tous les avantages membres</span>
+      </div>
+
+      <div class="section-divider">Type d'adhésion</div>
+
+      <div class="event-cards">
+        <label class="event-card" onclick="selectCard(this)">
+          <input type="radio" name="membre_type" value="actif"/>
+          <div class="event-card-info">
+            <div class="event-card-name">Membre Actif</div>
+            <div class="event-card-meta">Médecin exerçant dans la région Sfax · Cotisation annuelle</div>
+          </div>
+          <span class="event-card-badge">Standard</span>
+        </label>
+        <label class="event-card" onclick="selectCard(this)">
+          <input type="radio" name="membre_type" value="associe"/>
+          <div class="event-card-info">
+            <div class="event-card-name">Membre Associé</div>
+            <div class="event-card-meta">Professionnel de santé hors région · Accès aux publications</div>
+          </div>
+          <span class="event-card-badge congres">Associé</span>
+        </label>
+      </div>
+
+      <div class="section-divider">Identité</div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" placeholder="Votre nom"/>
+        </div>
+        <div class="field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" placeholder="Votre prénom"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Date de naissance</label>
+          <input type="date"/>
+        </div>
+        <div class="field">
+          <label>CIN / Passeport</label>
+          <input type="text" placeholder="Numéro de pièce d'identité"/>
+        </div>
+      </div>
+
+      <div class="section-divider">Coordonnées</div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" placeholder="exemple@email.com"/>
+        </div>
+        <div class="field">
+          <label>Téléphone <span class="req">*</span></label>
+          <input type="tel" placeholder="+216 XX XXX XXX"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Adresse</label>
+        <input type="text" placeholder="Rue, Cité, Code Postal"/>
+      </div>
+
+      <div class="section-divider">Parcours professionnel</div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Spécialité <span class="req">*</span></label>
+          <select>
+            <option value="">— Sélectionner —</option>
+            <option>Médecine Générale</option>
+            <option>Médecine de Famille</option>
+            <option>Pédiatrie</option>
+            <option>Gynécologie</option>
+            <option>Cardiologie</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Années d'expérience</label>
+          <select>
+            <option value="">— Sélectionner —</option>
+            <option>Moins de 2 ans</option>
+            <option>2 – 5 ans</option>
+            <option>5 – 10 ans</option>
+            <option>Plus de 10 ans</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Établissement actuel</label>
+        <input type="text" placeholder="Nom de votre structure"/>
+      </div>
+
+      <div class="field">
+        <label>N° Ordre des Médecins</label>
+        <input type="text" placeholder="ex: TN-0000-XXXX"/>
+      </div>
+
+      <div class="field">
+        <label>Diplômes / Certificats (optionnel)</label>
+        <div class="upload-area" onclick="document.getElementById('fileMembre').click()">
+          <div class="upload-icon">📎</div>
+          <strong>Joindre vos documents</strong>
+          <p>PDF, JPG, PNG — max 5 Mo</p>
+        </div>
+        <input type="file" id="fileMembre" style="display:none" accept=".pdf,.jpg,.png" onchange="showFile(this,'fileMembreName')"/>
+        <p id="fileMembreName" style="font-size:.8rem;color:var(--teal);margin-top:.3rem;"></p>
+      </div>
+
+      <div class="field">
+        <label>Motivation / Message</label>
+        <textarea placeholder="Pourquoi souhaitez-vous rejoindre l'AMGSBS ?"></textarea>
+      </div>
+
+      <button class="btn-submit" onclick="submitForm()">
+        🏥 Soumettre ma demande d'adhésion
+      </button>
+      <p class="terms">En soumettant, vous acceptez nos <a href="#">conditions d'adhésion</a>.</p>
+    </div>
+
+  </div><!-- /form-card -->
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="info-card">
+      <h3>📅 Prochains événements</h3>
+      <div class="upcoming-event">
+        <div class="ev-date">15 Mars 2025</div>
+        <div class="ev-name">Séminaire Médecine Générale</div>
+        <div class="ev-loc">📍 Hôtel Novotel, Sfax</div>
+      </div>
+      <div class="upcoming-event">
+        <div class="ev-date">22–23 Avril 2025</div>
+        <div class="ev-name">Congrès National Santé de Base</div>
+        <div class="ev-loc">📍 Centre des Congrès, Sfax</div>
+      </div>
+      <div class="upcoming-event">
+        <div class="ev-date">10 Mai 2025</div>
+        <div class="ev-name">Atelier Pédiatrie Communautaire</div>
+        <div class="ev-loc">📍 CSSB Sfax</div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📋 Comment s'inscrire ?</h3>
+      <ol class="steps">
+        <li>Choisissez l'événement ou le type de membre</li>
+        <li>Remplissez le formulaire avec vos informations</li>
+        <li>Joignez les documents requis si nécessaire</li>
+        <li>Soumettez votre inscription</li>
+        <li>Recevez la confirmation par email</li>
+      </ol>
+    </div>
+
+    <div class="info-card">
+      <h3>📞 Besoin d'aide ?</h3>
+      <div class="contact-row">
+        <div class="contact-icon">📧</div>
+        <div><strong>Email</strong><span>contact@amgsbs-sfax.tn</span></div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon">📞</div>
+        <div><strong>Téléphone</strong><span>+216 74 XXX XXX</span></div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon">📍</div>
+        <div><strong>Adresse</strong><span>Avenue de la République, Sfax 3000</span></div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <h2>Inscription envoyée !</h2>
+    <p>Votre demande a bien été reçue. Vous recevrez une confirmation à votre adresse email dans les plus brefs délais.</p>
+    <button class="btn-close-success" onclick="closeSuccess()">Fermer</button>
+  </div>
+</div>
+
+<script>
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+
+  function selectCard(label) {
+    label.closest('.event-cards').querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
+    label.classList.add('selected');
+  }
+
+  function showFile(input, targetId) {
+    const el = document.getElementById(targetId);
+    if (input.files[0]) el.textContent = '📎 ' + input.files[0].name;
+  }
+
+  function submitForm() {
+    document.getElementById('successOverlay').classList.add('show');
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+  }
+</script>
+</body>
+</html>

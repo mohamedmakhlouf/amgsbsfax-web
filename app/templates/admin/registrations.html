@@ -1,0 +1,103 @@
+{# ---app\templates\admin\registration.html---01 mars 2026--- #}
+{% extends "admin/base_admin.html" %}
+{% block title %}Inscriptions{% endblock %}
+{% block page_title %}📋 Inscriptions{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+  <p style="color:#607080;font-size:14px">{{ regs|length }} inscription(s)</p>
+  <div style="display:flex;gap:8px">
+    <span style="font-size:12px;color:#607080;align-self:center">Filtrer :</span>
+    <a href="?status=submitted" class="btn-sm {% if request.args.get('status')=='submitted' %}btn-gold{% else %}btn-gray{% endif %}">En attente</a>
+    <a href="?status=confirmed" class="btn-sm {% if request.args.get('status')=='confirmed' %}btn-green{% else %}btn-gray{% endif %}">Confirmés</a>
+    <a href="{{ url_for('admin.registrations') }}" class="btn-sm btn-gray">Tous</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat, msg in messages %}
+  <div class="flash {{ cat }}" style="margin-bottom:16px;">
+    {% if cat=='success' %}✅{% elif cat=='error' %}❌{% else %}ℹ️{% endif %} {{ msg }}
+  </div>
+  {% endfor %}
+{% endwith %}
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th><th>Événement</th><th>Contact</th><th>Hôtel</th>
+        <th>Transport</th><th>Paiement</th><th>Statut</th><th>Date</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in regs %}
+      <tr>
+        <td>
+          <strong>{{ r.sigle }} {{ r.first_name }} {{ r.last_name }}</strong><br>
+          <span style="color:#607080;font-size:11px">{{ r.specialty or '' }}</span>
+        </td>
+        <td style="font-size:12px">{{ r.event.title_fr[:35] if r.event else '—' }}...</td>
+        <td style="font-size:12px">
+          <a href="mailto:{{ r.email }}">{{ r.email }}</a><br>{{ r.phone }}
+        </td>
+        <td style="font-size:12px">
+          {% if r.hotel_requested %}✅ {{ r.room_type or '' }}<br>{{ r.nights_count }}n{% else %}—{% endif %}
+        </td>
+        <td>{% if r.transport_needed %}🚌{% else %}🚗{% endif %}</td>
+        <td style="font-size:12px">
+          {{ r.payment_method }}<br>
+          <span class="badge-status {% if r.payment_status=='paid' %}badge-confirmed{% else %}badge-draft{% endif %}">
+            {{ r.payment_status or 'non payé' }}
+          </span>
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.registration_status', id=r.id) }}">
+            <select name="status" onchange="this.form.submit()"
+                    style="font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;cursor:pointer">
+              <option value="submitted" {% if r.status=='submitted' %}selected{% endif %}>⏳ En attente</option>
+              <option value="confirmed" {% if r.status=='confirmed' %}selected{% endif %}>✅ Confirmé</option>
+              <option value="cancelled" {% if r.status=='cancelled' %}selected{% endif %}>❌ Annulé</option>
+            </select>
+          </form>
+        </td>
+        <td style="font-size:11px;color:#607080">{{ r.registered_at.strftime('%d/%m/%Y') }}</td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:5px;min-width:110px;">
+
+            {% if r.status != 'confirmed' %}
+            <form method="POST" action="{{ url_for('admin.registration_confirm', id=r.id) }}"
+                  onsubmit="return confirm('Confirmer et envoyer email à {{ r.email }} ?')">
+              <button type="submit" class="btn-sm btn-green"
+                      style="width:100%;justify-content:center;"
+                      title="Confirmer + envoyer email automatique">
+                ✅ Confirmer
+              </button>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('admin.registration_resend', id=r.id) }}"
+                  onsubmit="return confirm('Renvoyer email à {{ r.email }} ?')">
+              <button type="submit" class="btn-sm btn-blue"
+                      style="width:100%;justify-content:center;"
+                      title="Renvoyer l'email de confirmation">
+                📧 Renvoyer
+              </button>
+            </form>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('admin.registration_delete', id=r.id) }}"
+                  onsubmit="return confirm('Supprimer définitivement ?')">
+              <button type="submit" class="btn-sm btn-red" style="width:100%;justify-content:center;">
+                🗑️ Supprimer
+              </button>
+            </form>
+
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="9"><div class="empty-state"><div class="icon">📋</div><p>Aucune inscription</p></div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

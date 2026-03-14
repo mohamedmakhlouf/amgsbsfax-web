@@ -1,0 +1,622 @@
+{# ---app\templates\main\index.html---28 fev 2026--- #}
+{% extends "base.html" %}
+{% block title %}{% if session.get('lang')=='ar' %}الرئيسية{% else %}Accueil{% endif %}{% endblock %}
+
+{% block extra_css %}
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;background:var(--dark);}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0d2035 0%,#1a4a6e 50%,#1a6e8a 100%);}
+.hero-pattern{position:absolute;inset:0;opacity:.06;background-image:radial-gradient(circle,#fff 1px,transparent 1px);background-size:32px 32px;}
+.hero-glow{position:absolute;top:-20%;right:-10%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,144,42,.18) 0%,transparent 70%);}
+.hero-glow2{position:absolute;bottom:-20%;left:-5%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(26,110,138,.3) 0%,transparent 70%);}
+.hero-inner{position:relative;max-width:1300px;margin:0 auto;padding:80px 40px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr;padding:60px 20px;text-align:center;}.hero{min-height:auto;}}
+
+.hero-content{}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(200,144,42,.15);border:1px solid rgba(200,144,42,.3);color:var(--secondary);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:6px 16px;border-radius:999px;margin-bottom:24px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.8vw,2.2rem);color:white;font-weight:900;line-height:1.2;margin-bottom:20px;}
+.hero h1 em{color:var(--secondary);font-style:normal;}
+.hero-desc{font-size:16px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:36px;max-width:500px;}
+@media(max-width:900px){.hero-desc{margin:0 auto 36px;}}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+@media(max-width:900px){.hero-actions{justify-content:center;}}
+.btn-hero-primary{background:var(--secondary);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;transition:all .3s;display:inline-flex;align-items:center;gap:8px;}
+.btn-hero-primary:hover{background:#b07a20;transform:translateY(-2px);box-shadow:0 10px 30px rgba(200,144,42,.4);}
+.btn-hero-outline{background:rgba(255,255,255,.08);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;border:1px solid rgba(255,255,255,.2);transition:all .3s;display:inline-flex;align-items:center;gap:8px;}
+.btn-hero-outline:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);}
+
+/* Hero stats */
+.hero-stats{display:flex;gap:32px;margin-top:44px;padding-top:36px;border-top:1px solid rgba(255,255,255,.1);}
+@media(max-width:900px){.hero-stats{justify-content:center;}}
+.hero-stat .hs-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:white;line-height:1;}
+.hero-stat .hs-num span{color:var(--secondary);}
+.hero-stat .hs-label{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
+
+/* Hero bureau photo */
+.hero-visual{position:relative;padding:20px 0;}
+.bureau-card{background:rgba(255,255,255,.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.4);}
+.bureau-photo{width:100%;height:300px;background:linear-gradient(135deg,#1a4a6e,#1a6e8a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden;}
+.bureau-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.bureau-photo img ~ .bp-icon,
+.bureau-photo img ~ .bp-title,
+.bureau-photo img ~ .bp-sub{display:none;}
+.bureau-photo::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10S0 14.5 0 20s4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z'/%3E%3C/g%3E%3C/svg%3E");z-index:0;}
+.bp-icon{font-size:3.5rem;position:relative;z-index:1;}
+.bp-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:white;font-weight:700;position:relative;z-index:1;}
+.bp-sub{font-size:13px;color:rgba(255,255,255,.6);position:relative;z-index:1;}
+.bureau-footer{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);}
+.bureau-footer span{font-size:13px;color:rgba(255,255,255,.7);}
+.bureau-badge{background:var(--secondary);color:white;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;}
+
+/* Floating cards on hero */
+.hero-float{position:absolute;background:white;border-radius:14px;padding:10px 14px;box-shadow:0 12px 40px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);z-index:10;}
+.hero-float.f1{bottom:10px;left:10px;}
+.hero-float.f2{top:10px;right:10px;}
+.hf-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0;}
+.hf-icon.blue{background:var(--accent);}
+.hf-icon.gold{background:#fef3cd;}
+.hf-val{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--primary);line-height:1;}
+.hf-lbl{font-size:11px;color:#607080;}
+
+/* ══ STATS BAR ══ */
+.stats-bar{background:var(--primary);padding:36px 40px;}
+.stats-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+@media(max-width:768px){.stats-inner{grid-template-columns:repeat(2,1fr);}}
+.stat-item{text-align:center;padding:20px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);transition:all .2s;}
+.stat-item:hover{background:rgba(255,255,255,.12);}
+.stat-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:white;line-height:1;}
+.stat-num em{color:var(--secondary);font-style:normal;}
+.stat-label{font-size:12px;color:rgba(255,255,255,.6);margin-top:6px;text-transform:uppercase;letter-spacing:1px;}
+.stat-icon{font-size:1.6rem;margin-bottom:8px;display:block;}
+
+/* ══ SECTION TITLES ══ */
+.sec-header{text-align:center;margin-bottom:52px;}
+.sec-tag{display:inline-block;background:var(--accent);color:var(--primary);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 16px;border-radius:20px;margin-bottom:12px;}
+.sec-header h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);color:var(--primary);margin-bottom:12px;}
+.sec-header p{color:#607080;font-size:15px;max-width:560px;margin:0 auto;line-height:1.7;}
+.divider{width:60px;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary));margin:14px auto 0;border-radius:2px;}
+
+/* ══ ÉVÉNEMENTS ══ */
+.events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:900px){.events-grid{grid-template-columns:1fr;}}
+.event-card{background:white;border-radius:18px;border:1px solid var(--border);overflow:hidden;transition:all .25s;display:flex;flex-direction:column;}
+.event-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(26,74,110,.12);}
+.ec-header{padding:22px 22px 0;display:flex;justify-content:space-between;align-items:flex-start;}
+.ec-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:999px;}
+.ec-type.seminaire{background:var(--accent);color:var(--primary);}
+.ec-type.congres{background:#fef3cd;color:#856404;}
+.ec-date-box{background:var(--primary);color:white;border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;}
+.ec-date-box .edb-day{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1;}
+.ec-date-box .edb-month{font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:.8;}
+.ec-body{padding:16px 22px;flex:1;}
+.ec-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--primary);font-weight:700;margin-bottom:8px;line-height:1.3;}
+.ec-meta{font-size:12px;color:#607080;display:flex;flex-direction:column;gap:4px;}
+.ec-meta span{display:flex;align-items:center;gap:6px;}
+.ec-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.ec-footer a{font-size:13px;font-weight:600;color:var(--primary);text-decoration:none;transition:color .2s;}
+.ec-footer a:hover{color:var(--secondary);}
+.ec-spots{font-size:11px;color:#607080;}
+
+/* ══ ACTUALITÉS SANTÉ ══ */
+.news-section{background:var(--light);}
+.news-grid{display:grid;grid-template-columns:2fr 1fr;gap:28px;}
+@media(max-width:900px){.news-grid{grid-template-columns:1fr;}}
+.news-main{display:flex;flex-direction:column;gap:20px;}
+.news-card{background:white;border-radius:16px;border:1px solid var(--border);padding:22px;display:flex;gap:18px;transition:all .2s;text-decoration:none;color:inherit;}
+.news-card:hover{box-shadow:0 8px 30px rgba(26,74,110,.1);transform:translateY(-2px);}
+.nc-badge{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;flex-shrink:0;}
+.nc-badge.tn{background:#e8f5e9;}
+.nc-badge.world{background:#e3f2fd;}
+.nc-badge.alert{background:#fff3e0;}
+.nc-content{}
+.nc-source{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.nc-source.tn{color:#2e7d32;}
+.nc-source.world{color:#1565c0;}
+.nc-source.alert{color:#e65100;}
+.nc-title{font-size:15px;font-weight:600;color:var(--primary);margin-bottom:6px;line-height:1.4;}
+.nc-desc{font-size:13px;color:#607080;line-height:1.6;}
+.nc-date{font-size:11px;color:#aab;margin-top:6px;}
+.news-side{display:flex;flex-direction:column;gap:16px;}
+.news-side-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--secondary);padding-bottom:10px;border-bottom:2px solid var(--secondary);margin-bottom:4px;}
+.news-mini{background:white;border-radius:12px;border:1px solid var(--border);padding:14px 16px;transition:all .2s;cursor:pointer;}
+.news-mini:hover{border-color:var(--primary);background:var(--accent);}
+.nm-title{font-size:13px;font-weight:600;color:var(--primary);margin-bottom:4px;line-height:1.4;}
+.nm-meta{font-size:11px;color:#607080;display:flex;gap:8px;}
+.nm-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;}
+.nm-tag.tn{background:#e8f5e9;color:#2e7d32;}
+.nm-tag.world{background:#e3f2fd;color:#1565c0;}
+
+/* ══ MOT DU PRÉSIDENT ══ */
+.president-section{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;padding:80px 40px;}
+.president-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:300px 1fr;gap:60px;align-items:center;}
+@media(max-width:900px){.president-inner{grid-template-columns:1fr;text-align:center;gap:32px;}}
+.president-photo{text-align:center;}
+.president-avatar{width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.05));border:3px solid var(--secondary);display:flex;align-items:center;justify-content:center;font-size:4rem;margin:0 auto 16px;}
+/* Remplacez par : <img src="{{ url_for('static',filename='images/president.jpg') }}" ...> */
+.president-name{font-family:'Playfair Display',serif;font-size:1.2rem;color:white;font-weight:700;}
+.president-title{font-size:12px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.president-quote{position:relative;padding-left:32px;}
+.president-quote::before{content:'"';position:absolute;left:0;top:-10px;font-family:'Playfair Display',serif;font-size:5rem;color:var(--secondary);line-height:1;opacity:.4;}
+.president-quote blockquote{font-family:'Playfair Display',serif;font-size:1.3rem;color:white;line-height:1.7;font-style:italic;margin-bottom:20px;}
+.president-quote p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;}
+
+/* ══ BUREAU MEMBRES ══ */
+.bureau-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+@media(max-width:1000px){.bureau-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.bureau-grid{grid-template-columns:1fr;}}
+.membre-card{background:white;border-radius:18px;border:1px solid var(--border);padding:24px;text-align:center;transition:all .25s;}
+.membre-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(26,74,110,.1);border-color:var(--primary);}
+.mc-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#1a6e8a);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 14px;border:3px solid var(--accent);}
+.mc-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:4px;}
+.mc-role{font-size:12px;color:var(--secondary);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.mc-spec{font-size:12px;color:#607080;}
+
+/* ══ GALERIE ══ */
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,180px);gap:14px;}
+@media(max-width:768px){.gallery-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:auto;}}
+.gallery-item{border-radius:14px;overflow:hidden;background:linear-gradient(135deg,var(--primary),#1a6e8a);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;transition:all .25s;position:relative;}
+.gallery-item:hover{transform:scale(1.02);box-shadow:0 12px 32px rgba(26,74,110,.2);}
+.gallery-item.tall{grid-row:span 2;}
+.gallery-item.wide{grid-column:span 2;}
+.gi-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,32,53,.8),transparent);opacity:0;transition:opacity .25s;display:flex;align-items:flex-end;padding:16px;}
+.gallery-item:hover .gi-overlay{opacity:1;}
+.gi-label{font-size:13px;color:white;font-weight:600;}
+
+/* ══ CTA BANNER ══ */
+.cta-banner{background:linear-gradient(135deg,var(--secondary),#b07a20);padding:60px 40px;text-align:center;}
+.cta-banner h2{font-family:'Playfair Display',serif;font-size:2rem;color:white;margin-bottom:12px;}
+.cta-banner p{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:28px;}
+.cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-cta-white{background:white;color:var(--secondary);padding:13px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;transition:all .2s;}
+.btn-cta-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2);}
+.btn-cta-outline{background:transparent;color:white;border:2px solid rgba(255,255,255,.6);padding:11px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;}
+.btn-cta-outline:hover{background:rgba(255,255,255,.1);border-color:white;}
+
+/* ══ ANIMATIONS ══ */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:none;}
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-content reveal">
+      <div class="hero-tag">
+        🏥 {% if session.get('lang')=='ar' %}الجمعية الطبية لمجمع الصحة الأساسية{% else %}Association Médicale — Sfax, Tunisie{% endif %}
+      </div>
+      <h1>
+        {% if session.get('lang')=='ar' %}
+          مكرسون لـ<em>صحة</em><br>أفضل في صفاقس
+        {% else %}
+          Engagés pour une<br><em>santé de base</em><br>de qualité à Sfax
+        {% endif %}
+      </h1>
+      <p class="hero-desc">
+        {% if session.get('lang')=='ar' %}
+          الجمعية الطبية لمجموعة الصحة الأساسية بصفاقس تجمع أطباء المنطقة لتطوير الرعاية الصحية الأولية وتبادل المعارف الطبية.
+        {% else %}
+          L'AMGSBS réunit les médecins du groupement de Sfax pour promouvoir la santé de base, partager les avancées médicales et organiser des événements scientifiques de qualité.
+        {% endif %}
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('register.index') }}" class="btn-hero-primary">
+          ✅ {% if session.get('lang')=='ar' %}سجّل الآن{% else %}S'inscrire{% endif %}
+        </a>
+        <a href="{{ url_for('events.index') }}" class="btn-hero-outline">
+          📅 {% if session.get('lang')=='ar' %}الفعاليات{% else %}Voir les événements{% endif %}
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hs-num">+<span>{{ membres_count|default(320) }}</span></div>
+          <div class="hs-label">{% if session.get('lang')=='ar' %}عضوًا{% else %}Membres{% endif %}</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-num"><span>{{ events_count|default(48) }}</span></div>
+          <div class="hs-label">{% if session.get('lang')=='ar' %}فعالية{% else %}Événements{% endif %}</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hs-num"><span>{{ years_count|default(15) }}</span></div>
+          <div class="hs-label">{% if session.get('lang')=='ar' %}سنة خبرة{% else %}Ans d'existence{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal" style="transition-delay:.2s">
+      <div class="bureau-card">
+        <div class="bureau-photo">
+          <img src="{{ url_for('static', filename='images/bureau_group.jpg') }}"
+               alt="Bureau AMGSBS Sfax"
+               onerror="this.style.display='none'"/>
+          {# Affiché uniquement si la photo est absente #}
+          <span class="bp-icon">👨‍⚕️</span>
+          <div class="bp-title">{% if session.get('lang')=='ar' %}مكتب الجمعية{% else %}Bureau de l'Association{% endif %}</div>
+          <div class="bp-sub">{% if session.get('lang')=='ar' %}فريق صفاقس{% else %}Équipe AMGSBS Sfax{% endif %}</div>
+        </div>
+        <div class="bureau-footer">
+          <span>{% if session.get('lang')=='ar' %}الدورة الحالية 2023–2026{% else %}Mandat 2023–2026{% endif %}</span>
+          <span class="bureau-badge">{% if session.get('lang')=='ar' %}فعّال{% else %}Actif{% endif %}</span>
+        </div>
+      </div>
+      <div class="hero-float f1">
+        <div class="hf-icon blue">📅</div>
+        <div>
+          <div class="hf-val">{{ next_event.date_start.strftime('%d %b') if next_event and next_event.date_start else 'Bientôt' }}</div>
+          <div class="hf-lbl">{% if session.get('lang')=='ar' %}الفعالية القادمة{% else %}Prochain événement{% endif %}</div>
+        </div>
+      </div>
+      <div class="hero-float f2">
+        <div class="hf-icon gold">🏆</div>
+        <div>
+          <div class="hf-val">{% if session.get('lang')=='ar' %}مرخصة{% else %}Autorisée{% endif %}</div>
+          <div class="hf-lbl">{% if session.get('lang')=='ar' %}{% else %}{% endif %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ STATS BAR ══════════════ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <span class="stat-icon">👨‍⚕️</span>
+      <div class="stat-num">+<em>{{ membres_count|default(320) }}</em></div>
+      <div class="stat-label">{% if session.get('lang')=='ar' %}عضو فعّال{% else %}Membres actifs{% endif %}</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:.1s">
+      <span class="stat-icon">🎓</span>
+      <div class="stat-num"><em>{{ seminaires_count|default(38) }}</em></div>
+      <div class="stat-label">{% if session.get('lang')=='ar' %}ندوة علمية{% else %}Séminaires organisés{% endif %}</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:.2s">
+      <span class="stat-icon">🏛️</span>
+      <div class="stat-num"><em>{{ congres_count|default(10) }}</em></div>
+      <div class="stat-label">{% if session.get('lang')=='ar' %}مؤتمر وطني{% else %}Congrès nationaux{% endif %}</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:.3s">
+      <span class="stat-icon">📅</span>
+      <div class="stat-num"><em>{{ years_count|default(15) }}</em></div>
+      <div class="stat-label">{% if session.get('lang')=='ar' %}سنة من الخدمة{% else %}Années d'activité{% endif %}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PROCHAINS ÉVÉNEMENTS ══════════════ -->
+<section>
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-tag">📅 {% if session.get('lang')=='ar' %}الفعاليات{% else %}Agenda{% endif %}</span>
+      <h2>{% if session.get('lang')=='ar' %}الفعاليات القادمة{% else %}Prochains Événements{% endif %}</h2>
+      <p>{% if session.get('lang')=='ar' %}سجّل في ندواتنا ومؤتمراتنا العلمية وابق على اطلاع بآخر التطورات الطبية{% else %}Inscrivez-vous à nos séminaires et congrès scientifiques et restez à la pointe de la médecine{% endif %}</p>
+      <div class="divider"></div>
+    </div>
+    <div class="events-grid">
+      {% if upcoming_events %}
+        {% for event in upcoming_events[:3] %}
+        <div class="event-card reveal" style="transition-delay:{{ loop.index0 * 0.1 }}s">
+          <div class="ec-header">
+            <span class="ec-type {{ event.event_type }}">{{ 'Congrès' if event.event_type=='congres' else 'Séminaire' }}</span>
+            {% if event.date_start %}
+            <div class="ec-date-box">
+              <div class="edb-day">{{ event.date_start.strftime('%d') }}</div>
+              <div class="edb-month">{{ event.date_start.strftime('%b %Y') }}</div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="ec-body">
+            <div class="ec-title">{{ event.title_ar if session.get('lang')=='ar' else event.title_fr }}</div>
+            <div class="ec-meta">
+              {% if event.location %}<span>📍 {{ event.location }}</span>{% endif %}
+              {% if event.date_start %}<span>🕐 {{ event.date_start.strftime('%H:%M') if event.date_start.strftime('%H:%M') != '00:00' else '' }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="ec-footer">
+            <a href="{{ url_for('events.detail', event_id=event.id) }}">
+              {% if session.get('lang')=='ar' %}عرض البرنامج{% else %}Voir le programme{% endif %} →
+            </a>
+            <span class="ec-spots">{% if session.get('lang')=='ar' %}مفتوح للتسجيل{% else %}Inscriptions ouvertes{% endif %}</span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        {# Exemples statiques si pas de données #}
+        {% for item in [
+          {'type':'seminaire','title_fr':'Séminaire de Médecine Générale','title_ar':'ندوة الطب العام','date':'15/03/2025','loc':'Hôtel Novotel, Sfax'},
+          {'type':'congres','title_fr':'Congrès National Santé de Base','title_ar':'المؤتمر الوطني للصحة الأساسية','date':'22/04/2025','loc':'Centre des Congrès, Sfax'},
+          {'type':'seminaire','title_fr':'Atelier Pédiatrie Communautaire','title_ar':'ورشة طب الأطفال المجتمعي','date':'10/05/2025','loc':'CSSB Sfax'}
+        ] %}
+        <div class="event-card reveal" style="transition-delay:{{ loop.index0 * 0.1 }}s">
+          <div class="ec-header">
+            <span class="ec-type {{ item.type }}">{{ 'Congrès' if item.type=='congres' else 'Séminaire' }}</span>
+            <div class="ec-date-box">
+              <div class="edb-day">{{ item.date.split('/')[0] }}</div>
+              <div class="edb-month">{{ item.date.split('/')[1] }}/{{ item.date.split('/')[2] }}</div>
+            </div>
+          </div>
+          <div class="ec-body">
+            <div class="ec-title">{{ item.title_ar if session.get('lang')=='ar' else item.title_fr }}</div>
+            <div class="ec-meta"><span>📍 {{ item.loc }}</span></div>
+          </div>
+          <div class="ec-footer">
+            <a href="{{ url_for('events.index') }}">{% if session.get('lang')=='ar' %}عرض التفاصيل{% else %}Voir le programme{% endif %} →</a>
+            <span class="ec-spots">{% if session.get('lang')=='ar' %}مفتوح{% else %}Ouvert{% endif %}</span>
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <a href="{{ url_for('events.index') }}" class="btn-outline">
+        {% if session.get('lang')=='ar' %}عرض جميع الفعاليات{% else %}Voir tous les événements{% endif %} →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ ACTUALITÉS SANTÉ ══════════════ -->
+<section class="news-section">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-tag">📰 {% if session.get('lang')=='ar' %}الأخبار{% else %}Actualités{% endif %}</span>
+      <h2>{% if session.get('lang')=='ar' %}أخبار الصحة في تونس والعالم{% else %}Actualités Santé — Tunisie & Monde{% endif %}</h2>
+      <p>{% if session.get('lang')=='ar' %}آخر الأخبار والتطورات الطبية على المستوى الوطني والدولي{% else %}Dernières nouvelles et avancées médicales au niveau national et international{% endif %}</p>
+      <div class="divider"></div>
+    </div>
+    <div class="news-grid reveal">
+      <div class="news-main">
+        {% if news %}
+          {% for article in news[:3] %}
+          <a class="news-card" href="{{ article.url or '#' }}" target="_blank">
+            <div class="nc-badge {{ 'tn' if article.category == 'tunisie' else ('alert' if article.category == 'alerte' else 'world') }}">
+              {{ '🇹🇳' if article.category == 'tunisie' else ('⚠️' if article.category == 'alerte' else '🌍') }}
+            </div>
+            <div class="nc-content">
+              <div class="nc-source {{ 'tn' if article.category == 'tunisie' else ('alert' if article.category == 'alerte' else 'world') }}">
+                {% if article.category == 'tunisie' %}
+                  {% if session.get('lang')=='ar' %}تونس{% else %}Tunisie{% endif %}
+                {% elif article.category == 'alerte' %}
+                  {% if session.get('lang')=='ar' %}تنبيه صحي{% else %}Alerte sanitaire{% endif %}
+                {% else %}
+                  {% if session.get('lang')=='ar' %}عالمي{% else %}Monde{% endif %}
+                {% endif %}
+              </div>
+              <div class="nc-title">{{ article.title_ar if session.get('lang')=='ar' and article.title_ar else article.title_fr }}</div>
+              {% if article.summary_fr or article.summary_ar %}
+              <div class="nc-desc">{{ article.summary_ar if session.get('lang')=='ar' and article.summary_ar else article.summary_fr }}</div>
+              {% elif article.content_fr or article.content_ar %}
+              <div class="nc-desc">{{ (article.content_ar if session.get('lang')=='ar' and article.content_ar else article.content_fr)|truncate(150) }}</div>
+              {% endif %}
+              <div class="nc-date">
+                {{ article.published_at.strftime('%d/%m/%Y') if article.published_at else '' }}
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          {# Fallback statique si aucune actualité en DB #}
+          <div class="news-card" style="cursor:default;">
+            <div class="nc-badge world">📰</div>
+            <div class="nc-content">
+              <div class="nc-title" style="color:#607080;">
+                {% if session.get('lang')=='ar' %}لا توجد أخبار متاحة حاليًا{% else %}Aucune actualité disponible pour le moment{% endif %}
+              </div>
+              <div class="nc-desc">
+                {% if session.get('lang')=='ar' %}أضف أخبارًا من لوحة الإدارة{% else %}Ajoutez des actualités depuis le panneau d'administration{% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      <div class="news-side">
+        <div class="news-side-title">{% if session.get('lang')=='ar' %}في الموجز{% else %}En bref{% endif %}</div>
+        {% if news and news|length > 3 %}
+          {% for article in news[3:8] %}
+          <a class="news-mini" href="{{ article.url or '#' }}" target="_blank" style="text-decoration:none;display:block;">
+            <div class="nm-title">{{ article.title_ar if session.get('lang')=='ar' and article.title_ar else article.title_fr }}</div>
+            <div class="nm-meta">
+              <span class="nm-tag {{ 'tn' if article.category == 'tunisie' else ('alert' if article.category == 'alerte' else 'world') }}">
+                {{ 'تونس' if article.category == 'tunisie' and session.get('lang')=='ar' else ('Tunisie' if article.category == 'tunisie' else ('تنبيه' if article.category == 'alerte' and session.get('lang')=='ar' else ('Alerte' if article.category == 'alerte' else ('عالمي' if session.get('lang')=='ar' else 'Monde')))) }}
+              </span>
+              <span>{{ article.published_at.strftime('%b %Y') if article.published_at else '' }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        {% elif news %}
+          {# Pas assez d'articles pour la sidebar — afficher les mêmes #}
+          {% for article in news %}
+          <a class="news-mini" href="{{ article.url or '#' }}" target="_blank" style="text-decoration:none;display:block;">
+            <div class="nm-title">{{ article.title_ar if session.get('lang')=='ar' and article.title_ar else article.title_fr }}</div>
+            <div class="nm-meta">
+              <span class="nm-tag {{ 'tn' if article.category == 'tunisie' else 'world' }}">
+                {{ 'تونس' if article.category == 'tunisie' and session.get('lang')=='ar' else ('Tunisie' if article.category == 'tunisie' else ('عالمي' if session.get('lang')=='ar' else 'Monde')) }}
+              </span>
+              <span>{{ article.published_at.strftime('%b %Y') if article.published_at else '' }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="news-mini" style="color:#607080;font-size:13px;">
+            {% if session.get('lang')=='ar' %}لا توجد أخبار{% else %}Aucune actualité{% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ MOT DU PRÉSIDENT ══════════════ -->
+{% set president = members[0] if members else none %}
+<div class="president-section">
+  <div class="president-inner">
+    <div class="president-photo reveal">
+      {% if president and president.photo_url %}
+        <div class="president-avatar" style="background:none;padding:0;overflow:hidden;">
+          <img src="{{ president.photo_url }}"
+               style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+               alt="{{ president.name_fr }}"
+               onerror="this.parentElement.innerHTML='👨‍⚕️'"/>
+        </div>
+      {% else %}
+        <div class="president-avatar">👨‍⚕️</div>
+      {% endif %}
+      <div class="president-name">{{ (president.name_ar if session.get('lang')=='ar' and president.name_ar else president.name_fr) if president else 'Dr. [Nom du Président]' }}</div>
+      <div class="president-title">{% if session.get('lang')=='ar' %}رئيس الجمعية{% else %}Président de l'AMGSBS{% endif %}</div>
+    </div>
+    <div class="president-quote reveal" style="transition-delay:.2s">
+      <blockquote>
+        {% if session.get('lang')=='ar' %}
+          «الصحة الأساسية هي الركيزة الأولى لأي منظومة صحية متكاملة. إن التزامنا بالتكوين المستمر وتبادل المعارف هو ما يميّزنا ويجعلنا في خدمة مرضانا.»
+        {% else %}
+          «La santé de base est le pilier fondamental de tout système de santé intégré. Notre engagement dans la formation continue et le partage des connaissances est ce qui nous distingue et nous permet de mieux servir nos patients.»
+        {% endif %}
+      </blockquote>
+      <p>
+        {% if session.get('lang')=='ar' %}
+          تأسست جمعيتنا منذ أكثر من {{ years_count|default(15) }} عامًا، وتواصل مسيرتها في تطوير الطب العام وطب الأسرة في منطقة صفاقس، من خلال تنظيم ندوات علمية وتكوينات طبية على أعلى مستوى.
+        {% else %}
+          Fondée il y a plus de {{ years_count|default(15) }} ans, notre association poursuit sa mission de développement de la médecine générale et de famille dans la région de Sfax, à travers l'organisation de séminaires scientifiques et de formations médicales de haut niveau.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ BUREAU / MEMBRES ══════════════ -->
+<section>
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-tag">👥 {% if session.get('lang')=='ar' %}الفريق{% else %}Équipe{% endif %}</span>
+      <h2>{% if session.get('lang')=='ar' %}مكتب الجمعية{% else %}Bureau de l'Association{% endif %}</h2>
+      <p>{% if session.get('lang')=='ar' %}فريق متفانٍ يعمل من أجل الرقي بالصحة الأساسية في صفاقس{% else %}Une équipe dévouée œuvrant pour l'excellence de la santé de base à Sfax{% endif %}</p>
+      <div class="divider"></div>
+    </div>
+    <div class="bureau-grid">
+      {% if members %}
+        {% for m in members %}
+        <div class="membre-card reveal" style="transition-delay:{{ loop.index0 * 0.1 }}s">
+          {% if m.photo_url %}
+            <div class="mc-avatar" style="background:none;border:3px solid var(--accent);overflow:hidden;">
+              <img src="{{ m.photo_url }}"
+                   style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                   alt="{{ m.name_fr }}"
+                   onerror="this.parentElement.innerHTML='👨‍⚕️'"/>
+            </div>
+          {% else %}
+            <div class="mc-avatar">👨‍⚕️</div>
+          {% endif %}
+          <div class="mc-name">{{ m.name_ar if session.get('lang')=='ar' and m.name_ar else m.name_fr }}</div>
+          <div class="mc-role">{{ m.role_ar if session.get('lang')=='ar' and m.role_ar else m.role_fr }}</div>
+          {% if m.specialty %}
+          <div class="mc-spec">{{ m.specialty }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:#607080;font-size:14px;">
+          {% if session.get('lang')=='ar' %}لا يوجد أعضاء حاليًا{% else %}Aucun membre à afficher{% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ GALERIE ══════════════ -->
+<section style="background:var(--light);padding-top:60px;padding-bottom:60px;">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-tag">📸 {% if session.get('lang')=='ar' %}الصور{% else %}Galerie{% endif %}</span>
+      <h2>{% if session.get('lang')=='ar' %}معرض الصور{% else %}Galerie Photos{% endif %}</h2>
+      <p>{% if session.get('lang')=='ar' %}لحظات من فعالياتنا وأنشطتنا{% else %}Moments forts de nos événements et activités{% endif %}</p>
+      <div class="divider"></div>
+    </div>
+
+    {% if gallery_photos %}
+    <div class="gallery-grid reveal">
+      {% for photo in gallery_photos %}
+      {# Disposition asymétrique : 1ère photo tall, 4ème wide #}
+      {% set cls = 'tall' if loop.index == 1 else ('wide' if loop.index == 4 else '') %}
+      <div class="gallery-item {{ cls }}"
+           style="background:linear-gradient(135deg,var(--primary),#1a6e8a);"
+           title="{{ photo.caption_fr or photo.event.title_fr if photo.event else '' }}">
+        <img src="{{ photo.url }}"
+             style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"
+             alt="{{ photo.caption_fr or '' }}"
+             onerror="this.style.display='none'"/>
+        <div class="gi-overlay">
+          <span class="gi-label">
+            {% if session.get('lang')=='ar' %}
+              {{ photo.caption_ar or (photo.event.title_ar if photo.event else '') }}
+            {% else %}
+              {{ photo.caption_fr or (photo.event.title_fr if photo.event else '') }}
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    {# Fallback statique si aucune photo en DB #}
+    <div class="gallery-grid reveal">
+      {% for g in [
+        {'label_fr':'Séminaire','label_ar':'ندوة','cls':'tall','bg':'linear-gradient(135deg,#1a4a6e,#1a6e8a)','icon':'🎓'},
+        {'label_fr':'Congrès','label_ar':'مؤتمر','cls':'','bg':'linear-gradient(135deg,#2e7d5e,#1a6e8a)','icon':'🏛️'},
+        {'label_fr':'Formation','label_ar':'تكوين','cls':'','bg':'linear-gradient(135deg,#c8902a,#b07a20)','icon':'📚'},
+        {'label_fr':'Bureau','label_ar':'المكتب','cls':'wide','bg':'linear-gradient(135deg,#0d2035,#1a4a6e)','icon':'👥'},
+        {'label_fr':'Remise de Prix','label_ar':'الجوائز','cls':'','bg':'linear-gradient(135deg,#b33a3a,#8a2020)','icon':'🏆'},
+      ] %}
+      <div class="gallery-item {{ g.cls }}" style="background:{{ g.bg }};">
+        <span style="font-size:2.5rem;">{{ g.icon }}</span>
+        <div class="gi-overlay">
+          <span class="gi-label">{{ g.label_ar if session.get('lang')=='ar' else g.label_fr }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <p style="text-align:center;color:#aab;font-size:13px;margin-top:20px;">
+      {% if session.get('lang')=='ar' %}أضف صوراً من لوحة الإدارة{% else %}Ajoutez des photos depuis le panneau d'administration{% endif %}
+    </p>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- ══════════════ CTA BANNER ══════════════ -->
+<div class="cta-banner">
+  <h2>{% if session.get('lang')=='ar' %}انضم إلينا اليوم!{% else %}Rejoignez-nous dès aujourd'hui !{% endif %}</h2>
+  <p>{% if session.get('lang')=='ar' %}سجّل في فعالياتنا أو انضم كعضو في جمعيتنا وكن جزءًا من التغيير{% else %}Inscrivez-vous à nos événements ou adhérez à notre association et faites partie du changement{% endif %}</p>
+  <div class="cta-actions">
+    <a href="{{ url_for('register.index') }}" class="btn-cta-white">
+      ✅ {% if session.get('lang')=='ar' %}التسجيل الآن{% else %}S'inscrire maintenant{% endif %}
+    </a>
+    <a href="{{ url_for('contact.index') }}" class="btn-cta-outline">
+      📞 {% if session.get('lang')=='ar' %}اتصل بنا{% else %}Nous contacter{% endif %}
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Scroll reveal animation */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

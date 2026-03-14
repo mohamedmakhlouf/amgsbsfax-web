@@ -1,0 +1,203 @@
+{# ---app\templates\base.html---28 fev 2026--- #}
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'fr') }}" {% if session.get('lang') == 'ar' %}dir="rtl"{% endif %}>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}AMGSBS Sfax-Tunisie{% endblock %} — Association Médicale GSB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cairo:wght@300;400;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a4a6e;
+    --secondary: #c8902a;
+    --accent: #e8f4f8;
+    --dark: #0d2035;
+    --light: #f9fbfd;
+    --text: #2c3e50;
+    --white: #ffffff;
+    --border: #d0dce8;
+    --green: #2e7d5e;
+    --red: #b33a3a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: {% if session.get('lang')=='ar' %}'Tajawal',sans-serif{% else %}'Cairo',sans-serif{% endif %};
+    background: var(--light); color: var(--text); overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .top-bar { background:var(--dark); color:#aac6e0; padding:7px 40px; display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+  .lang-switch { display:flex; gap:6px; }
+  .lang-btn { background:transparent; border:1px solid #aac6e0; color:#aac6e0; padding:3px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-family:inherit; transition:all .3s; text-decoration:none; display:inline-block; }
+  .lang-btn.active, .lang-btn:hover { background:var(--secondary); border-color:var(--secondary); color:white; }
+
+  /* HEADER */
+  header { background:white; box-shadow:0 2px 20px rgba(26,74,110,.12); position:sticky; top:0; z-index:1000; }
+  .header-inner { max-width:1300px; margin:0 auto; padding:14px 40px; display:flex; align-items:center; justify-content:space-between; }
+  .logo-area { display:flex; align-items:center; gap:16px; text-decoration:none; }
+  .logo-icon { width:48px; height:48px; border-radius:50%; overflow:hidden; flex-shrink:0; box-shadow:0 2px 12px rgba(26,74,110,.25); background:white; display:flex; align-items:center; justify-content:center; border:2px solid var(--primary); padding:2px; }
+  .logo-icon img { width:100%; height:100%; object-fit:contain; border-radius:50%; }
+  .logo-text h1 { font-family:'Playfair Display',serif; font-size:20px; color:var(--primary); font-weight:700; line-height:1.2; }
+  .logo-text p { font-size:11px; color:#7a8fa0; margin-top:2px; }
+  nav { display:flex; gap:4px; align-items:center; flex-wrap:wrap; }
+  nav a { color:var(--text); text-decoration:none; padding:8px 15px; border-radius:8px; font-size:13.5px; font-weight:500; transition:all .2s; white-space:nowrap; }
+  nav a:hover, nav a.active { background:var(--accent); color:var(--primary); }
+  .nav-admin { background:var(--secondary) !important; color:white !important; }
+  .nav-admin:hover { opacity:.9; }
+
+  /* FLASH */
+  .flash-container { max-width:1300px; margin:16px auto; padding:0 40px; }
+  .flash { padding:14px 20px; border-radius:10px; font-size:14px; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+  .flash.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+  .flash.error   { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+  .flash.info    { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
+
+  /* ALERT BANNER */
+  .alert-banner { background:linear-gradient(90deg,var(--primary),#1a6e8a); color:white; padding:12px 40px; display:flex; justify-content:center; align-items:center; gap:16px; font-size:14px; }
+  .alert-banner strong { color:var(--secondary); }
+  .alert-banner a { color:#ffd700; }
+  .alert-close { background:none; border:none; color:white; font-size:18px; cursor:pointer; opacity:.7; margin-left:auto; }
+
+  /* FOOTER */
+  footer { background:var(--dark); color:rgba(255,255,255,.7); padding:60px 40px 30px; }
+  .footer-inner { max-width:1300px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; padding-bottom:40px; border-bottom:1px solid rgba(255,255,255,.1); }
+  .footer-brand h3 { font-family:'Playfair Display',serif; color:white; font-size:20px; margin-bottom:12px; }
+  .footer-brand p { font-size:13px; line-height:1.7; }
+  .footer-col h4 { color:var(--secondary); font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; font-weight:700; }
+  .footer-col a { display:block; color:rgba(255,255,255,.65); text-decoration:none; font-size:13px; margin-bottom:8px; transition:color .2s; }
+  .footer-col a:hover { color:white; }
+  .footer-bottom { max-width:1300px; margin:22px auto 0; display:flex; justify-content:space-between; font-size:12px; align-items:center; }
+  .social-links { display:flex; gap:10px; margin-top:14px; }
+  .social-links a { color:white; font-size:18px; text-decoration:none; opacity:.7; transition:opacity .2s; }
+  .social-links a:hover { opacity:1; }
+
+  /* UTILITIES */
+  .btn-primary { background:var(--secondary); color:white; padding:12px 28px; border-radius:10px; text-decoration:none; font-weight:700; font-size:14px; transition:all .3s; display:inline-block; border:none; cursor:pointer; font-family:inherit; }
+  .btn-primary:hover { background:#b07a20; transform:translateY(-2px); box-shadow:0 8px 20px rgba(200,144,42,.4); }
+  .btn-outline { background:transparent; border:2px solid var(--primary); color:var(--primary); padding:10px 24px; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px; transition:all .3s; display:inline-block; font-family:inherit; cursor:pointer; }
+  .btn-outline:hover { background:var(--accent); }
+  .btn-sm { padding:7px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; font-family:inherit; transition:all .2s; text-decoration:none; display:inline-block; }
+  .btn-blue  { background:var(--primary); color:white; }
+  .btn-gold  { background:var(--secondary); color:white; }
+  .btn-red   { background:var(--red); color:white; }
+  .btn-green { background:var(--green); color:white; }
+  .section-tag { display:inline-block; background:var(--accent); color:var(--primary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; padding:5px 16px; border-radius:20px; margin-bottom:12px; }
+  .section-header { text-align:center; margin-bottom:48px; }
+  .section-header h2 { font-family:'Playfair Display',serif; font-size:36px; color:var(--primary); margin-bottom:12px; }
+  .section-header p { color:#607080; font-size:15px; max-width:580px; margin:0 auto; line-height:1.7; }
+  .divider { width:60px; height:4px; background:linear-gradient(90deg,var(--primary),var(--secondary)); margin:14px auto 0; border-radius:2px; }
+  section { padding:70px 40px; }
+  .section-inner { max-width:1300px; margin:0 auto; }
+
+  @media(max-width:768px){
+    .top-bar { padding:6px 16px; font-size:11px; }
+    .header-inner { padding:12px 16px; flex-wrap:wrap; gap:12px; }
+    nav { justify-content:center; }
+    section { padding:50px 16px; }
+    .footer-inner { grid-template-columns:1fr; gap:24px; }
+    .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
+    .flash-container { padding:0 16px; }
+  }
+  {% block extra_css %}{% endblock %}
+</style>
+</head>
+<body>
+
+{% if next_event %}
+<div class="alert-banner" id="alertBanner">
+  📢
+  {% if session.get('lang')=='ar' %}
+    <strong>الحدث القادم:</strong> {{ next_event.title_ar or next_event.title_fr }} —
+    <a href="{{ url_for('events.detail', event_id=next_event.id) }}">عرض البرنامج</a>
+  {% else %}
+    <strong>Prochain événement :</strong> {{ next_event.title_fr }} —
+    <a href="{{ url_for('events.detail', event_id=next_event.id) }}">Voir le programme</a>
+  {% endif %}
+  <button class="alert-close" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+{% endif %}
+
+<div class="top-bar">
+  <span> {% if session.get('lang')=='ar' %}الجمعية الطبية لمجمع الصحة الأساسية بصفاقس{% else %}Association Médicale du Groupement de Santé de Base de Sfax{% endif %}-🇹🇳</span>
+  <div class="lang-switch">
+    <a href="{{ url_for('main.set_language', lang='fr') }}" class="lang-btn {% if session.get('lang','fr')=='fr' %}active{% endif %}">🇫🇷 Français</a>
+    <a href="{{ url_for('main.set_language', lang='ar') }}" class="lang-btn {% if session.get('lang')=='ar' %}active{% endif %}">🇸🇦 عربي</a>
+  </div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="{{ url_for('main.index') }}">
+      <div class="logo-icon"><img src="{{ url_for('static', filename='images/logo_amgsbs_small.jpg') }}" alt="AMGSBS Logo"></div>
+      <div class="logo-text">
+        <h1>AMGSBS Sfax-Tunisie</h1>
+        <p>{% if session.get('lang')=='ar' %}الجمعية الطبية لمجمع الصحة الأساسية بصفاقس{% else %}Groupement de Santé de Base — Sfax{% endif %}</p>
+      </div>
+    </a>
+    <nav>
+      <a href="{{ url_for('main.index') }}" class="{% if request.endpoint=='main.index' %}active{% endif %}">{% if session.get('lang')=='ar' %}الرئيسية{% else %}Accueil{% endif %}</a>
+      <a href="{{ url_for('events.index') }}" class="{% if request.blueprint=='events' %}active{% endif %}">{% if session.get('lang')=='ar' %}الندوات والمؤتمرات{% else %}Séminaires & Congrès{% endif %}</a>
+      <a href="{{ url_for('register.index') }}" class="{% if request.blueprint=='register' %}active{% endif %}">{% if session.get('lang')=='ar' %}التسجيل{% else %}Inscription{% endif %}</a>
+      <a href="{{ url_for('abstracts.index') }}" class="{% if request.blueprint=='abstracts' %}active{% endif %}">{% if session.get('lang')=='ar' %}الملخصات{% else %}Résumés & Exposés{% endif %}</a>
+      <a href="{{ url_for('contact.index') }}" class="{% if request.blueprint=='contact' %}active{% endif %}">{% if session.get('lang')=='ar' %}اتصل بنا{% else %}Contact{% endif %}</a>
+      <a href="{{ url_for('admin.dashboard') }}" class="nav-admin">🔐 {% if session.get('lang')=='ar' %}المشرف{% else %}Admin{% endif %}</a>
+    </nav>
+  </div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{% if category=='success' %}✅{% elif category=='error' %}❌{% else %}ℹ️{% endif %} {{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <img src="{{ url_for('static', filename='images/logo_amgsbs_small.jpg') }}" alt="AMGSBS" style="width:52px;height:52px;border-radius:50%;background:white;padding:2px">
+        <h3 style="margin:0">AMGSBS Sfax</h3>
+      </div>
+      <p>{% if session.get('lang')=='ar' %}الجمعية الطبية لمجمع الصحة الأساسية بصفاقس مكرسة للصحة الأساسية والتكوين الطبي و الشبه الطبي بصفاقس.{% else %}Association Médicale du Groupement de Santé de Base de Sfax. Dédiée à la santé de base et à la formation médicale à Sfax.{% endif %}</p>
+      <div class="social-links"><a href="#">📘</a><a href="#">📸</a><a href="#">💼</a></div>
+    </div>
+    <div class="footer-col">
+      <h4>{% if session.get('lang')=='ar' %}التنقل{% else %}Navigation{% endif %}</h4>
+      <a href="{{ url_for('main.index') }}">{% if session.get('lang')=='ar' %}الرئيسية{% else %}Accueil{% endif %}</a>
+      <a href="{{ url_for('events.index') }}">{% if session.get('lang')=='ar' %}الندوات{% else %}Séminaires{% endif %}</a>
+      <a href="{{ url_for('register.index') }}">{% if session.get('lang')=='ar' %}التسجيل{% else %}Inscription{% endif %}</a>
+      <a href="{{ url_for('abstracts.index') }}">{% if session.get('lang')=='ar' %}الملخصات{% else %}Résumés{% endif %}</a>
+      <a href="{{ url_for('contact.index') }}">{% if session.get('lang')=='ar' %}اتصل بنا{% else %}Contact{% endif %}</a>
+    </div>
+    <div class="footer-col">
+      <h4>{% if session.get('lang')=='ar' %}الجمعية{% else %}Association{% endif %}</h4>
+      <a href="#">{% if session.get('lang')=='ar' %}من نحن{% else %}À propos{% endif %}</a>
+      <a href="#">{% if session.get('lang')=='ar' %}النظام الأساسي{% else %}Statuts{% endif %}</a>
+      <a href="#">{% if session.get('lang')=='ar' %}المكتب التنفيذي{% else %}Bureau exécutif{% endif %}</a>
+      <a href="#">{% if session.get('lang')=='ar' %}الانخراط{% else %}Adhésion{% endif %}</a>
+    </div>
+    <div class="footer-col">
+      <h4>{% if session.get('lang')=='ar' %}روابط مفيدة{% else %}Liens utiles{% endif %}</h4>
+      <a href="#">{% if session.get('lang')=='ar' %}وزارة الصحة{% else %}Ministère de la Santé{% endif %}</a>
+      <a href="#">{% if session.get('lang')=='ar' %}هيئة الأطباء{% else %}Ordre des Médecins{% endif %}</a>
+      <a href="#">{% if session.get('lang')=='ar' %}مجموعة الصحة الأساسية{% else %}GSB Sfax{% endif %}</a>
+      <a href="#">ATGO</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© {{ now.year if now else 2025 }} AMGSBS Sfax — {% if session.get('lang')=='ar' %}جميع الحقوق محفوظة{% else %}Tous droits réservés{% endif %} 🇹🇳 - Concepteur du site Dr Mohamed Makhlouf</span>
+    <span>{% if session.get('lang')=='ar' %}سياسة الخصوصية{% else %}Politique de confidentialité{% endif %}</span>
+  </div>
+</footer>
+
+<script>const LANG = "{{ session.get('lang', 'fr') }}";</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Admin AMGSBS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{--primary:#1a4a6e;--secondary:#c8902a;--dark:#0d2035;--light:#f0f4f8;--border:#d0dce8;--text:#2c3e50;--green:#2e7d5e;--red:#b33a3a;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Cairo',sans-serif;background:var(--light);color:var(--text);display:flex;min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{width:260px;background:var(--dark);color:white;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;}
+  .sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .sidebar-brand h2{font-family:'Playfair Display',serif;font-size:18px;color:white;}
+  .sidebar-brand p{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;}
+  .sidebar-nav{padding:16px 0;flex:1;}
+  .nav-section{padding:8px 20px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.35);font-weight:700;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:rgba(255,255,255,.7);text-decoration:none;font-size:14px;transition:all .2s;border-left:3px solid transparent;}
+  .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:white;border-left-color:var(--secondary);}
+  .nav-item .icon{font-size:18px;flex-shrink:0;}
+  .badge{background:var(--secondary);color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:auto;}
+  .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);}
+  .sidebar-footer a{color:rgba(255,255,255,.5);font-size:13px;text-decoration:none;display:flex;align-items:center;gap:8px;}
+  .sidebar-footer a:hover{color:white;}
+
+  /* MAIN */
+  .main{margin-left:260px;flex:1;display:flex;flex-direction:column;}
+  .topbar{background:white;padding:16px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .topbar h1{font-family:'Playfair Display',serif;font-size:22px;color:var(--primary);}
+  .topbar-right{display:flex;align-items:center;gap:16px;}
+  .user-chip{display:flex;align-items:center;gap:8px;background:var(--light);padding:8px 14px;border-radius:20px;font-size:13px;}
+  .content{padding:32px;}
+
+  /* STATS CARDS */
+  .stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:32px;}
+  .stat-card{background:white;border-radius:14px;padding:22px 18px;border:1px solid var(--border);text-align:center;transition:all .3s;}
+  .stat-card:hover{box-shadow:0 6px 20px rgba(26,74,110,.1);transform:translateY(-3px);}
+  .stat-card .num{font-size:34px;font-weight:900;color:var(--primary);font-family:'Playfair Display',serif;line-height:1;}
+  .stat-card .lbl{font-size:12px;color:#607080;margin-top:6px;}
+  .stat-card .icon{font-size:28px;margin-bottom:8px;}
+  .stat-card.alert{border-color:var(--secondary);}
+  .stat-card.alert .num{color:var(--secondary);}
+
+  /* SECTION */
+  .section-card{background:white;border-radius:16px;padding:28px;border:1px solid var(--border);margin-bottom:24px;}
+  .section-card h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;}
+  th{background:var(--light);padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#607080;font-weight:700;}
+  td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#fafbfc;}
+  .status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;}
+  .status-submitted{background:#fff3cd;color:#856404;}
+  .status-confirmed{background:#d4edda;color:#155724;}
+  .status-cancelled{background:#f8d7da;color:#721c24;}
+  .status-pending{background:#e2e3e5;color:#383d41;}
+  .status-paid{background:#d4edda;color:#155724;}
+
+  /* QUICK ACTIONS */
+  .quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+  .action-card{background:white;border-radius:14px;padding:22px;border:1px solid var(--border);text-decoration:none;color:var(--text);transition:all .3s;text-align:center;}
+  .action-card:hover{box-shadow:0 6px 20px rgba(26,74,110,.1);transform:translateY(-3px);border-color:var(--primary);}
+  .action-card .icon{font-size:36px;margin-bottom:10px;}
+  .action-card h4{font-size:14px;font-weight:700;color:var(--primary);margin-bottom:4px;}
+  .action-card p{font-size:12px;color:#607080;}
+
+  /* FLASH */
+  .flash{padding:12px 18px;border-radius:10px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .flash.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
+  .flash.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+  .flash.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;}
+
+  .btn-sm{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-block;}
+  .btn-blue{background:var(--primary);color:white;}
+  .btn-gold{background:var(--secondary);color:white;}
+  .btn-red{background:var(--red);color:white;}
+  .btn-green{background:var(--green);color:white;}
+
+  @media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr);}.quick-actions{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.sidebar{display:none;}.main{margin-left:0;}.stats-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h2>⚕️ AMGSBS Admin</h2>
+    <p>Tableau de bord</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="nav-item active"><span class="icon">📊</span> Tableau de bord</a>
+
+    <div class="nav-section">Contenu</div>
+    <a href="{{ url_for('admin.members') }}" class="nav-item"><span class="icon">👥</span> Membres du Bureau</a>
+    <a href="{{ url_for('admin.events') }}" class="nav-item"><span class="icon">📅</span> Événements</a>
+    <a href="{{ url_for('admin.news') }}" class="nav-item"><span class="icon">📰</span> Actualités</a>
+    <a href="{{ url_for('admin.gallery') }}" class="nav-item"><span class="icon">📸</span> Galerie Photos</a>
+    <a href="{{ url_for('admin.abstracts') }}" class="nav-item"><span class="icon">📄</span> Résumés & Exposés</a>
+
+    <div class="nav-section">Gestion</div>
+    <a href="{{ url_for('admin.registrations') }}" class="nav-item">
+      <span class="icon">📋</span> Inscriptions
+      {% if stats.registrations > 0 %}<span class="badge">{{ stats.registrations }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('admin.messages') }}" class="nav-item">
+      <span class="icon">✉️</span> Messages
+      {% if stats.messages > 0 %}<span class="badge">{{ stats.messages }}</span>{% endif %}
+    </a>
+
+    <div class="nav-section">Site</div>
+    <a href="{{ url_for('main.index') }}" class="nav-item" target="_blank"><span class="icon">🌐</span> Voir le site</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{{ url_for('admin.logout') }}">🚪 Déconnexion — {{ current_user.username }}</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <h1>Tableau de bord</h1>
+    <div class="topbar-right">
+      <span style="font-size:13px;color:#607080">{{ now.strftime('%d/%m/%Y') if now else '' }}</span>
+      <div class="user-chip">👤 {{ current_user.username }}</div>
+    </div>
+  </div>
+
+  <div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for cat,msg in messages %}<div class="flash {{ cat }}">{% if cat=='success' %}✅{% elif cat=='error' %}❌{% else %}ℹ️{% endif %} {{ msg }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="icon">👥</div><div class="num">{{ stats.members }}</div><div class="lbl">Membres bureau</div></div>
+      <div class="stat-card"><div class="icon">📅</div><div class="num">{{ stats.events }}</div><div class="lbl">Événements</div></div>
+      <div class="stat-card"><div class="icon">📋</div><div class="num">{{ stats.registrations }}</div><div class="lbl">Inscriptions</div></div>
+      <div class="stat-card"><div class="icon">📄</div><div class="num">{{ stats.abstracts }}</div><div class="lbl">Résumés</div></div>
+      <div class="stat-card"><div class="icon">📰</div><div class="num">{{ stats.news }}</div><div class="lbl">Actualités</div></div>
+      <div class="stat-card alert"><div class="icon">✉️</div><div class="num">{{ stats.messages }}</div><div class="lbl">Msg non lus</div></div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <a href="{{ url_for('admin.event_add') }}" class="action-card"><div class="icon">➕📅</div><h4>Ajouter un événement</h4><p>Congrès, séminaire ou formation</p></a>
+      <a href="{{ url_for('admin.member_add') }}" class="action-card"><div class="icon">➕👤</div><h4>Ajouter un membre</h4><p>Bureau exécutif</p></a>
+      <a href="{{ url_for('admin.news_add') }}" class="action-card"><div class="icon">➕📰</div><h4>Publier une actualité</h4><p>Nouvelles et annonces</p></a>
+      <a href="{{ url_for('admin.gallery_add') }}" class="action-card"><div class="icon">➕📸</div><h4>Ajouter une photo</h4><p>Galerie de la page d'accueil</p></a>
+      <a href="{{ url_for('admin.abstract_add') }}" class="action-card"><div class="icon">➕📄</div><h4>Ajouter un résumé</h4><p>Travaux scientifiques</p></a>
+    </div>
+
+    <!-- RECENT REGISTRATIONS -->
+    {% if recent_regs %}
+    <div class="section-card">
+      <h3>📋 Dernières Inscriptions
+        <a href="{{ url_for('admin.registrations') }}" style="margin-left:auto;font-size:13px;color:var(--secondary);text-decoration:none;font-family:'Cairo',sans-serif;font-weight:600">Voir tout →</a>
+      </h3>
+      <table>
+        <thead><tr><th>Nom</th><th>Événement</th><th>Date</th><th>Hôtel</th><th>Paiement</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for r in recent_regs %}
+          <tr>
+            <td><strong>{{ r.full_name }}</strong><br><span style="color:#607080;font-size:12px">{{ r.email }}</span></td>
+            <td style="font-size:12px">{{ r.event.title_fr[:40] if r.event else '—' }}...</td>
+            <td style="color:#607080;font-size:12px">{{ r.registered_at.strftime('%d/%m/%Y') }}</td>
+            <td>{% if r.hotel_requested %}✅ {{ r.nights_count }}n{% else %}—{% endif %}</td>
+            <td style="font-size:12px">{{ r.payment_method }}</td>
+            <td><span class="status-badge status-{{ r.status }}">{{ r.status }}</span></td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.registration_status', id=r.id) }}" style="display:inline">
+                <select name="status" onchange="this.form.submit()" style="font-size:11px;padding:4px;border:1px solid var(--border);border-radius:6px;font-family:inherit">
+                  <option value="submitted" {% if r.status=='submitted' %}selected{% endif %}>Soumis</option>
+                  <option value="confirmed" {% if r.status=='confirmed' %}selected{% endif %}>Confirmé</option>
+                  <option value="cancelled" {% if r.status=='cancelled' %}selected{% endif %}>Annulé</option>
+                </select>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- RECENT MESSAGES -->
+    {% if recent_msgs %}
+    <div class="section-card">
+      <h3>✉️ Derniers Messages
+        <a href="{{ url_for('admin.messages') }}" style="margin-left:auto;font-size:13px;color:var(--secondary);text-decoration:none;font-family:'Cairo',sans-serif;font-weight:600">Voir tout →</a>
+      </h3>
+      <table>
+        <thead><tr><th>Nom</th><th>Email</th><th>Sujet</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for m in recent_msgs %}
+          <tr style="{% if not m.is_read %}font-weight:700;{% endif %}">
+            <td>{{ m.name }}</td>
+            <td style="color:#607080;font-size:12px">{{ m.email }}</td>
+            <td>{{ m.subject or '—' }}</td>
+            <td style="color:#607080;font-size:12px">{{ m.sent_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td><span class="status-badge {% if m.is_read %}status-confirmed{% else %}status-submitted{% endif %}">{% if m.is_read %}Lu{% else %}Non lu{% endif %}</span></td>
+            <td><a href="{{ url_for('admin.message_read', id=m.id) }}" class="btn-sm btn-blue">Lire</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+</body>
+</html>

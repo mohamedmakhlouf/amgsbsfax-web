@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{% if item %}Modifier{% else %}Ajouter{% endif %} Actualité{% endblock %}
+{% block page_title %}{% if item %}✏️ Modifier l'actualité{% else %}➕ Nouvelle actualité{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:800px">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="card">
+      <h3>📰 Contenu de l'actualité</h3>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Titre (Français) *</label>
+          <input type="text" name="title_fr" required value="{{ item.title_fr if item else '' }}">
+        </div>
+        <div class="form-group full">
+          <label>العنوان (العربية)</label>
+          <input type="text" name="title_ar" value="{{ item.title_ar if item else '' }}" style="direction:rtl">
+        </div>
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select name="category">
+            <option value="Général" {% if not item or item.category=='Général' %}selected{% endif %}>Général</option>
+            <option value="Événement" {% if item and item.category=='Événement' %}selected{% endif %}>Événement</option>
+            <option value="Formation" {% if item and item.category=='Formation' %}selected{% endif %}>Formation</option>
+            <option value="Annonce" {% if item and item.category=='Annonce' %}selected{% endif %}>Annonce</option>
+            <option value="Résultats" {% if item and item.category=='Résultats' %}selected{% endif %}>Résultats</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select name="is_published">
+            <option value="1" {% if item and item.is_published %}selected{% endif %}>✅ Publié</option>
+            <option value="0" {% if not item or not item.is_published %}selected{% endif %}>📝 Brouillon</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Contenu (Français)</label>
+          <textarea name="content_fr" rows="6">{{ item.content_fr if item else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>المحتوى (العربية)</label>
+          <textarea name="content_ar" rows="4" style="direction:rtl">{{ item.content_ar if item else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>Image {% if item and item.image_url %}<a href="{{ item.image_url }}" target="_blank" style="font-size:11px;color:var(--secondary)">Voir actuelle</a>{% endif %}</label>
+          {% if item and item.image_url %}<img src="{{ item.image_url }}" style="height:70px;border-radius:8px;margin-bottom:8px;display:block">{% endif %}
+          <input type="file" name="image" accept="image/*">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+      <a href="{{ url_for('admin.news') }}" class="btn btn-gray">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

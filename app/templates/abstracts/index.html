@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block title %}{% if session.get('lang')=='ar' %}الملخصات والعروض{% else %}Résumés & Exposés{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── HERO ── */
+.page-hero{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;padding:60px 40px;text-align:center;}
+.page-hero h1{font-family:'Playfair Display',serif;font-size:40px;margin-bottom:12px;}
+.page-hero p{opacity:.8;font-size:15px;max-width:600px;margin:0 auto;}
+
+/* ── TABS ── */
+.tabs-bar{background:white;border-bottom:2px solid var(--border);padding:0 40px;display:flex;gap:4px;max-width:100%;}
+.tab-btn{padding:16px 24px;font-size:14px;font-weight:600;color:#607080;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;font-family:inherit;}
+.tab-btn.active,.tab-btn:hover{color:var(--primary);border-bottom-color:var(--secondary);}
+.tab-content{display:none;padding:48px 40px;max-width:1100px;margin:0 auto;}
+.tab-content.active{display:block;}
+@media(max-width:768px){.tabs-bar{padding:0 16px;}.tab-content{padding:32px 16px;}.page-hero{padding:40px 16px;}}
+
+/* ── FEATURED ABSTRACTS ── */
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:40px;}
+.abstract-card{background:white;border-radius:16px;border:1px solid var(--border);padding:24px;transition:all .25s;text-decoration:none;color:inherit;display:block;}
+.abstract-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(26,74,110,.1);border-color:var(--primary);}
+.ac-award{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 12px;border-radius:999px;margin-bottom:12px;}
+.ac-award.premier{background:#fff3cd;color:#856404;}
+.ac-award.deuxieme{background:#e2e3e5;color:#383d41;}
+.ac-award.troisieme{background:#fde8d8;color:#8b4513;}
+.ac-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:8px;}
+.ac-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--primary);font-weight:700;margin-bottom:8px;line-height:1.4;}
+.ac-author{font-size:13px;color:#607080;margin-bottom:6px;}
+.ac-institution{font-size:12px;color:#aab;}
+.ac-footer{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+.ac-file-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:7px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+.ac-file-btn.pdf{background:#fde8d8;color:#b33a3a;}
+.ac-file-btn.ppt{background:#fff3cd;color:#856404;}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;align-items:center;}
+.filter-btn{padding:7px 18px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:white;color:#607080;transition:all .2s;font-family:inherit;}
+.filter-btn.active,.filter-btn:hover{background:var(--primary);color:white;border-color:var(--primary);}
+.filter-select{padding:8px 14px;border:2px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--text);background:white;outline:none;}
+.filter-select:focus{border-color:var(--primary);}
+
+/* ── ABSTRACTS LIST ── */
+.abstracts-list{display:flex;flex-direction:column;gap:16px;}
+.abstract-row{background:white;border-radius:14px;border:1px solid var(--border);padding:20px 24px;display:flex;gap:20px;align-items:flex-start;transition:all .2s;text-decoration:none;color:inherit;}
+.abstract-row:hover{box-shadow:0 6px 20px rgba(26,74,110,.08);border-color:var(--primary);}
+.ar-type-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;flex-shrink:0;}
+.ar-type-icon.oral{background:#e3f2fd;}
+.ar-type-icon.poster{background:#f3e5f5;}
+.ar-type-icon.keynote{background:#fff3e0;}
+.ar-body{flex:1;}
+.ar-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:6px;line-height:1.4;}
+.ar-meta{font-size:12px;color:#607080;display:flex;flex-wrap:wrap;gap:12px;}
+.ar-meta span{display:flex;align-items:center;gap:4px;}
+.ar-event{font-size:11px;background:var(--accent);color:var(--primary);padding:3px 10px;border-radius:999px;font-weight:600;}
+.ar-files{display:flex;gap:8px;margin-top:10px;}
+
+/* ── SUBMISSION FORM ── */
+.submit-intro{background:linear-gradient(135deg,var(--accent),#d8eef8);border-radius:16px;padding:28px 32px;margin-bottom:36px;border-left:4px solid var(--primary);}
+.submit-intro h3{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--primary);margin-bottom:8px;}
+.submit-intro p{font-size:14px;color:#3a4a5a;line-height:1.7;}
+.submit-intro ul{margin-top:12px;padding-left:20px;}
+.submit-intro li{font-size:13px;color:#3a4a5a;margin-bottom:4px;}
+
+.form-card{background:white;border-radius:20px;padding:36px;box-shadow:0 8px 40px rgba(26,74,110,.08);border:1px solid var(--border);}
+.form-section-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--primary);margin:28px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+.form-section-title:first-child{margin-top:0;}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+.form-group label{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;}
+.form-group label .req{color:var(--secondary);margin-left:2px;}
+.form-group input,
+.form-group select,
+.form-group textarea{padding:11px 14px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;color:var(--text);transition:border-color .2s;background:#f9fbfd;outline:none;width:100%;}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(26,74,110,.07);}
+.form-group textarea{resize:vertical;min-height:140px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:#f9fbfd;}
+.upload-zone:hover{border-color:var(--primary);background:var(--accent);}
+.upload-zone input{display:none;}
+.upload-zone .uz-icon{font-size:2rem;margin-bottom:8px;}
+.upload-zone p{font-size:13px;color:#607080;}
+.upload-zone small{font-size:11px;color:#aab;}
+.upload-zone.has-file{border-color:var(--green);background:#f0faf5;}
+.upload-zone.has-file p{color:var(--green);font-weight:600;}
+
+.submit-btn{background:var(--secondary);color:white;border:none;padding:14px 36px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .3s;display:flex;align-items:center;gap:8px;margin:0 auto;}
+.submit-btn:hover{background:#b07a20;transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,144,42,.4);}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="page-hero">
+  <h1>{% if session.get('lang')=='ar' %}الملخصات والعروض العلمية{% else %}Résumés & Exposés Scientifiques{% endif %}</h1>
+  <p>{% if session.get('lang')=='ar' %}شاركوا أعمالكم العلمية في مؤتمراتنا وندواتنا الطبية{% else %}Partagez vos travaux scientifiques lors de nos congrès et séminaires médicaux{% endif %}</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('tab-list', this)">
+    📄 {% if session.get('lang')=='ar' %}الأعمال المنشورة{% else %}Travaux publiés{% endif %}
+  </button>
+  <button class="tab-btn" onclick="showTab('tab-submit', this)">
+    ➕ {% if session.get('lang')=='ar' %}إرسال عمل{% else %}Soumettre un travail{% endif %}
+  </button>
+</div>
+
+<!-- TAB : LISTE -->
+<div id="tab-list" class="tab-content active">
+
+  <!-- Travaux mis en avant -->
+  {% if featured %}
+  <div style="margin-bottom:40px;">
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--primary);margin-bottom:20px;">
+      🏆 {% if session.get('lang')=='ar' %}الأعمال المميزة{% else %}Travaux Primés{% endif %}
+    </h2>
+    <div class="featured-grid">
+      {% for ab in featured %}
+      <a href="{{ url_for('abstracts.detail', abstract_id=ab.id) }}" class="abstract-card">
+        {% if ab.award %}
+        <div class="ac-award {{ 'premier' if ab.award=='1er_prix' else ('deuxieme' if ab.award=='2eme_prix' else 'troisieme') }}">
+          {{ '🥇 1er Prix' if ab.award=='1er_prix' else ('🥈 2ème Prix' if ab.award=='2eme_prix' else '🥉 3ème Prix') }}
+        </div>
+        {% endif %}
+        <div class="ac-type">
+          {{ '🎤 Communication orale' if ab.presentation_type=='oral' else ('📋 Poster' if ab.presentation_type=='poster' else '🎓 Keynote') }}
+        </div>
+        <div class="ac-title">{{ ab.title_ar if session.get('lang')=='ar' and ab.title_ar else ab.title_fr }}</div>
+        <div class="ac-author">👤 {{ ab.author_name }}</div>
+        {% if ab.author_institution %}
+        <div class="ac-institution">🏥 {{ ab.author_institution }}</div>
+        {% endif %}
+        {% if ab.pdf_url or ab.pptx_url %}
+        <div class="ac-footer">
+          {% if ab.pdf_url %}<a href="{{ ab.pdf_url }}" target="_blank" class="ac-file-btn pdf" onclick="event.stopPropagation()">📄 PDF</a>{% endif %}
+          {% if ab.pptx_url %}<a href="{{ ab.pptx_url }}" target="_blank" class="ac-file-btn ppt" onclick="event.stopPropagation()">📊 PPT</a>{% endif %}
+        </div>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Filtres -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterAbstracts('all', this)">
+      {% if session.get('lang')=='ar' %}الكل{% else %}Tous{% endif %}
+    </button>
+    <button class="filter-btn" onclick="filterAbstracts('oral', this)">🎤 Oral</button>
+    <button class="filter-btn" onclick="filterAbstracts('poster', this)">📋 Poster</button>
+    <button class="filter-btn" onclick="filterAbstracts('keynote', this)">🎓 Keynote</button>
+    {% if events %}
+    <select class="filter-select" onchange="filterByEvent(this.value)">
+      <option value="">— {% if session.get('lang')=='ar' %}جميع الفعاليات{% else %}Tous les événements{% endif %} —</option>
+      {% for ev in events %}
+      <option value="{{ ev.id }}">{{ ev.title_fr }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+  </div>
+
+  <!-- Liste -->
+  {% if abstracts %}
+  <div class="abstracts-list" id="abstractsList">
+    {% for ab in abstracts %}
+    <a href="{{ url_for('abstracts.detail', abstract_id=ab.id) }}"
+       class="abstract-row"
+       data-type="{{ ab.presentation_type }}"
+       data-event="{{ ab.event_id }}">
+      <div class="ar-type-icon {{ ab.presentation_type or 'oral' }}">
+        {{ '🎤' if ab.presentation_type=='oral' else ('📋' if ab.presentation_type=='poster' else '🎓') }}
+      </div>
+      <div class="ar-body">
+        <div class="ar-title">{{ ab.title_ar if session.get('lang')=='ar' and ab.title_ar else ab.title_fr }}</div>
+        <div class="ar-meta">
+          <span>👤 {{ ab.author_name }}</span>
+          {% if ab.author_institution %}<span>🏥 {{ ab.author_institution }}</span>{% endif %}
+          {% if ab.event %}<span class="ar-event">📅 {{ ab.event.title_fr[:40] }}</span>{% endif %}
+          {% if ab.award %}<span style="color:var(--secondary);font-weight:700;">🏆 {{ ab.award.replace('_',' ').title() }}</span>{% endif %}
+        </div>
+        {% if ab.pdf_url or ab.pptx_url %}
+        <div class="ar-files">
+          {% if ab.pdf_url %}<a href="{{ ab.pdf_url }}" target="_blank" class="ac-file-btn pdf" onclick="event.stopPropagation()">📄 PDF</a>{% endif %}
+          {% if ab.pptx_url %}<a href="{{ ab.pptx_url }}" target="_blank" class="ac-file-btn ppt" onclick="event.stopPropagation()">📊 PPT</a>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:60px;background:white;border-radius:16px;border:1px solid var(--border);">
+    <div style="font-size:3rem;margin-bottom:16px;">📄</div>
+    <h3 style="color:var(--primary);margin-bottom:8px;">{% if session.get('lang')=='ar' %}لا توجد أعمال منشورة{% else %}Aucun travail publié pour le moment{% endif %}</h3>
+    <p style="color:#607080;margin-bottom:20px;">{% if session.get('lang')=='ar' %}كن أول من يشارك عمله العلمي{% else %}Soyez le premier à soumettre un travail scientifique{% endif %}</p>
+    <button onclick="showTab('tab-submit', document.querySelectorAll('.tab-btn')[1])" class="btn-primary">
+      ➕ {% if session.get('lang')=='ar' %}إرسال عمل{% else %}Soumettre un travail{% endif %}
+    </button>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- TAB : SOUMISSION -->
+<div id="tab-submit" class="tab-content">
+
+  <!-- Intro -->
+  <div class="submit-intro">
+    <h3>📋 {% if session.get('lang')=='ar' %}إرشادات التقديم{% else %}Instructions de soumission{% endif %}</h3>
+    <p>{% if session.get('lang')=='ar' %}يرجى قراءة الإرشادات التالية قبل إرسال عملكم العلمي:{% else %}Veuillez lire les instructions suivantes avant de soumettre votre travail :{% endif %}</p>
+    <ul>
+      <li>{% if session.get('lang')=='ar' %}الملخص لا يتجاوز 300 كلمة{% else %}Le résumé ne doit pas dépasser 300 mots{% endif %}</li>
+      <li>{% if session.get('lang')=='ar' %}الملفات المقبولة: PDF, PPT, PPTX (حجم أقصى 10 MB){% else %}Formats acceptés : PDF, PPT, PPTX (10 MB max){% endif %}</li>
+      <li>{% if session.get('lang')=='ar' %}سيتم مراجعة العمل من قبل اللجنة العلمية{% else %}Votre travail sera évalué par le comité scientifique{% endif %}</li>
+      <li>{% if session.get('lang')=='ar' %}ستتلقى ردًا على بريدك الإلكتروني خلال 48 ساعة{% else %}Vous recevrez une réponse par email sous 48h{% endif %}</li>
+    </ul>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+    <div class="flash {{ cat }}" style="margin-bottom:20px;">
+      {% if cat=='success' %}✅{% elif cat=='error' %}❌{% else %}ℹ️{% endif %} {{ msg }}
+    </div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="form-card">
+    <form method="POST" action="{{ url_for('abstracts.submit') }}" enctype="multipart/form-data">
+
+      <!-- Événement -->
+      <div class="form-section-title">📅 {% if session.get('lang')=='ar' %}الفعالية{% else %}Événement{% endif %}</div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}اختر الفعالية{% else %}Choisir l'événement{% endif %} <span class="req">*</span></label>
+        <select name="event_id" required>
+          <option value="">— {% if session.get('lang')=='ar' %}اختر فعالية{% else %}Sélectionner un événement{% endif %} —</option>
+          {% for ev in events %}
+          <option value="{{ ev.id }}">{{ ev.title_fr }} — {{ ev.date_start.strftime('%d/%m/%Y') if ev.date_start else '' }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Auteur -->
+      <div class="form-section-title">👤 {% if session.get('lang')=='ar' %}معلومات المؤلف{% else %}Informations auteur{% endif %}</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{% if session.get('lang')=='ar' %}الاسم الكامل{% else %}Nom complet{% endif %} <span class="req">*</span></label>
+          <input type="text" name="author_name" required placeholder="Dr. Prénom NOM"/>
+        </div>
+        <div class="form-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" name="author_email" required placeholder="votre@email.com"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}المؤسسة / المستشفى{% else %}Établissement / Hôpital{% endif %}</label>
+        <input type="text" name="author_institution" placeholder="{% if session.get('lang')=='ar' %}اسم المؤسسة{% else %}CHU Sfax, CSSB...{% endif %}"/>
+      </div>
+
+      <!-- Travail -->
+      <div class="form-section-title">📄 {% if session.get('lang')=='ar' %}تفاصيل العمل{% else %}Détails du travail{% endif %}</div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}عنوان العمل (بالفرنسية){% else %}Titre du travail (Français){% endif %} <span class="req">*</span></label>
+        <input type="text" name="title_fr" required placeholder="Titre de votre communication..."/>
+      </div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}عنوان العمل (بالعربية){% else %}Titre du travail (Arabe - optionnel){% endif %}</label>
+        <input type="text" name="title_ar" placeholder="عنوان العمل..." dir="rtl" style="font-family:'Cairo',sans-serif;"/>
+      </div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}نوع التقديم{% else %}Type de présentation{% endif %} <span class="req">*</span></label>
+        <select name="presentation_type" required>
+          <option value="oral">🎤 {% if session.get('lang')=='ar' %}عرض شفهي{% else %}Communication orale{% endif %}</option>
+          <option value="poster">📋 Poster</option>
+          <option value="keynote">🎓 Keynote / Conférence</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}الملخص (بالفرنسية){% else %}Résumé (Français){% endif %} <span class="req">*</span></label>
+        <textarea name="content_fr" required placeholder="Résumé de votre travail (300 mots max)..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>{% if session.get('lang')=='ar' %}الملخص (بالعربية - اختياري){% else %}Résumé (Arabe - optionnel){% endif %}</label>
+        <textarea name="content_ar" placeholder="ملخص العمل..." dir="rtl" style="font-family:'Cairo',sans-serif;min-height:100px;"></textarea>
+      </div>
+
+      <!-- Fichiers -->
+      <div class="form-section-title">📎 {% if session.get('lang')=='ar' %}الملفات{% else %}Fichiers{% endif %}</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{% if session.get('lang')=='ar' %}ملف PPT/PPTX{% else %}Fichier PPT/PPTX{% endif %}</label>
+          <div class="upload-zone" onclick="document.getElementById('pptx_file').click()" id="pptxZone">
+            <input type="file" id="pptx_file" name="pptx_file" accept=".ppt,.pptx"
+                   onchange="updateZone('pptxZone', this)"/>
+            <div class="uz-icon">📊</div>
+            <p>{% if session.get('lang')=='ar' %}انقر لرفع ملف PPT{% else %}Cliquer pour uploader PPT{% endif %}</p>
+            <small>.ppt, .pptx — max 10 MB</small>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{% if session.get('lang')=='ar' %}ملف PDF{% else %}Fichier PDF{% endif %}</label>
+          <div class="upload-zone" onclick="document.getElementById('pdf_file').click()" id="pdfZone">
+            <input type="file" id="pdf_file" name="pdf_file" accept=".pdf"
+                   onchange="updateZone('pdfZone', this)"/>
+            <div class="uz-icon">📄</div>
+            <p>{% if session.get('lang')=='ar' %}انقر لرفع ملف PDF{% else %}Cliquer pour uploader PDF{% endif %}</p>
+            <small>.pdf — max 10 MB</small>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:28px;">
+        <button type="submit" class="submit-btn">
+          📨 {% if session.get('lang')=='ar' %}إرسال العمل{% else %}Soumettre le travail{% endif %}
+        </button>
+        <p style="font-size:12px;color:#607080;margin-top:12px;">
+          {% if session.get('lang')=='ar' %}
+            سيتم إخطاركم عبر البريد الإلكتروني بعد مراجعة عملكم
+          {% else %}
+            Vous serez notifié par email après examen de votre dossier
+          {% endif %}
+        </p>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+function filterAbstracts(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.abstract-row').forEach(row => {
+    row.style.display = (type === 'all' || row.dataset.type === type) ? 'flex' : 'none';
+  });
+}
+
+function filterByEvent(eventId) {
+  document.querySelectorAll('.abstract-row').forEach(row => {
+    row.style.display = (!eventId || row.dataset.event === eventId) ? 'flex' : 'none';
+  });
+}
+
+function updateZone(zoneId, input) {
+  const zone = document.getElementById(zoneId);
+  if (input.files && input.files[0]) {
+    zone.classList.add('has-file');
+    zone.querySelector('p').textContent = '✅ ' + input.files[0].name;
+  }
+}
+</script>
+{% endblock %}

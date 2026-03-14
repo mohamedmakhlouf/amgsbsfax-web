@@ -1,0 +1,52 @@
+{# ---app/templates/events/index.html---27 fev 2026--- #}
+{% extends "base.html" %}
+
+{% block title %}Séminaires & Congrès{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h2>Séminaires</h2>
+  {% if seminars %}
+    <div class="row">
+      {% for event in seminars %}
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ event.title }}</h5>
+              <p class="card-text">{{ event.date_start }}</p>
+              <a href="{{ url_for('events.detail', event_id=event.id) }}" class="btn btn-primary">
+                Voir détails
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Aucun séminaire disponible.</p>
+  {% endif %}
+
+  <h2 class="mt-5">Congrès</h2>
+  {% if congres %}
+    <div class="row">
+      {% for event in congres %}
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ event.title }}</h5>
+              <p class="card-text">{{ event.date_start }}</p>
+              <a href="{{ url_for('events.detail', event_id=event.id) }}" class="btn btn-primary">
+                Voir détails
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Aucun congrès disponible.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

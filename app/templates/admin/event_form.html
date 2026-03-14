@@ -1,0 +1,122 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{% if event %}Modifier{% else %}Ajouter{% endif %} Événement{% endblock %}
+{% block page_title %}{% if event %}✏️ Modifier l'événement{% else %}➕ Nouvel événement{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:900px">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="card">
+      <h3>📋 Informations générales</h3>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Titre (Français) *</label>
+          <input type="text" name="title_fr" required value="{{ event.title_fr if event else '' }}" placeholder="15ème Congrès National AMGSBS">
+        </div>
+        <div class="form-group full">
+          <label>العنوان (العربية)</label>
+          <input type="text" name="title_ar" value="{{ event.title_ar if event else '' }}" style="direction:rtl">
+        </div>
+        <div class="form-group">
+          <label>Type d'événement *</label>
+          <select name="event_type">
+            <option value="congres" {% if event and event.event_type=='congres' %}selected{% endif %}>🏛️ Congrès</option>
+            <option value="seminaire" {% if event and event.event_type=='seminaire' %}selected{% endif %}>📚 Séminaire</option>
+            <option value="formation" {% if event and event.event_type=='formation' %}selected{% endif %}>🎓 Formation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select name="is_published">
+            <option value="1" {% if event and event.is_published %}selected{% endif %}>✅ Publié</option>
+            <option value="0" {% if not event or not event.is_published %}selected{% endif %}>📝 Brouillon</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date de début *</label>
+          <input type="date" name="date_start" required value="{{ event.date_start.strftime('%Y-%m-%d') if event and event.date_start else '' }}">
+        </div>
+        <div class="form-group">
+          <label>Date de fin</label>
+          <input type="date" name="date_end" value="{{ event.date_end.strftime('%Y-%m-%d') if event and event.date_end else '' }}">
+        </div>
+        <div class="form-group">
+          <label>Ville</label>
+          <input type="text" name="city" value="{{ event.city if event else '' }}" placeholder="Sfax">
+        </div>
+        <div class="form-group">
+          <label>Adresse</label>
+          <input type="text" name="address" value="{{ event.address if event else '' }}">
+        </div>
+        <div class="form-group full">
+          <label>Description (Français)</label>
+          <textarea name="description_fr" rows="3">{{ event.description_fr if event else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>الوصف (العربية)</label>
+          <textarea name="description_ar" rows="3" style="direction:rtl">{{ event.description_ar if event else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>Programme (Français) — HTML accepté</label>
+          <textarea name="program_fr" rows="5">{{ event.program_fr if event else '' }}</textarea>
+        </div>
+        <div class="form-group full">
+          <label>Image de l'événement</label>
+          {% if event and event.image_url %}<img src="{{ event.image_url }}" style="height:80px;border-radius:10px;margin-bottom:8px;display:block">{% endif %}
+          <input type="file" name="image" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🏨 Hébergement</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom de l'hôtel</label>
+          <input type="text" name="hotel_name" value="{{ event.hotel_name if event else '' }}" placeholder="Hôtel Novotel Sfax">
+        </div>
+        <div class="form-group">
+          <label>Étoiles</label>
+          <select name="hotel_stars">
+            {% for i in range(1,6) %}
+            <option value="{{ i }}" {% if event and event.hotel_stars==i %}selected{% endif %}>{{ '⭐'*i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Adresse de l'hôtel</label>
+          <input type="text" name="hotel_address" value="{{ event.hotel_address if event else '' }}">
+        </div>
+        <div class="form-group">
+          <label>Nombre de nuitées</label>
+          <input type="number" name="hotel_nights" value="{{ event.hotel_nights if event else '' }}" min="1">
+        </div>
+        <div class="form-group">
+          <label>Prix par nuit (DT)</label>
+          <input type="number" name="hotel_price_night" value="{{ event.hotel_price_night if event else '' }}" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🚌 Transport</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Transport disponible</label>
+          <select name="transport_available">
+            <option value="1" {% if event and event.transport_available %}selected{% endif %}>✅ Oui</option>
+            <option value="0" {% if not event or not event.transport_available %}selected{% endif %}>❌ Non</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Détails du transport</label>
+          <textarea name="transport_details_fr" rows="2">{{ event.transport_details_fr if event else '' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button type="submit" class="btn btn-primary">💾 {% if event %}Enregistrer{% else %}Créer l'événement{% endif %}</button>
+      <a href="{{ url_for('admin.events') }}" class="btn btn-gray">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

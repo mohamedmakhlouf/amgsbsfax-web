@@ -1,0 +1,506 @@
+{# ---app\templates\register\index.html---28 fev 2026--- #}
+{% extends "base.html" %}
+{% block title %}{% if session.get('lang')=='ar' %}التسجيل{% else %}Inscription{% endif %}{% endblock %}
+
+{% block extra_css %}
+/* ══ PAGE HERO ══ */
+.page-hero{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;padding:60px 40px;text-align:center;}
+.page-hero h1{font-family:'Playfair Display',serif;font-size:40px;margin-bottom:12px;}
+.page-hero p{opacity:.8;font-size:15px;}
+
+/* ══ LAYOUT ══ */
+.reg-wrap{max-width:1200px;margin:0 auto;padding:40px;display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start;}
+@media(max-width:900px){.reg-wrap{grid-template-columns:1fr;padding:24px 16px;}}
+
+/* ══ FORM CARD ══ */
+.form-card{background:white;border-radius:20px;padding:36px;box-shadow:0 8px 40px rgba(26,74,110,.1);}
+.panel-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--primary);margin-bottom:6px;}
+.panel-sub{font-size:13px;color:#607080;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+
+/* section separator */
+.fsep{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--secondary);display:flex;align-items:center;gap:8px;margin:22px 0 14px;}
+.fsep::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* fields */
+.form-row  {display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:600px){.form-row,.form-row-3{grid-template-columns:1fr;}}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.fg label{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;}
+.fg label .req{color:var(--secondary);margin-left:2px;}
+.fg input,.fg select,.fg textarea{padding:11px 14px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;color:var(--text);transition:border-color .2s;background:var(--light);outline:none;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(26,74,110,.07);}
+.fg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23607080' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:var(--light);}
+.fg textarea{resize:vertical;min-height:80px;}
+
+/* event cards */
+.event-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.event-option{border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .2s;}
+.event-option:hover{border-color:var(--primary);background:var(--accent);}
+.event-option.selected{border-color:var(--primary);background:var(--accent);}
+.event-option input[type=radio]{accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;}
+.ev-info{flex:1;}
+.ev-name{font-weight:600;font-size:14px;color:var(--primary);}
+.ev-meta{font-size:12px;color:#607080;margin-top:3px;}
+.ev-badge{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;flex-shrink:0;}
+.badge-s{background:var(--accent);color:var(--primary);}
+.badge-c{background:#fef3cd;color:#856404;}
+
+/* toggle checkboxes */
+.toggle-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.toggle-opt{display:flex;align-items:center;gap:8px;padding:9px 16px;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;transition:all .2s;user-select:none;}
+.toggle-opt:hover{border-color:var(--primary);background:var(--accent);}
+.toggle-opt input{accent-color:var(--primary);width:15px;height:15px;}
+
+/* conditional hidden section */
+.cond-section{display:none;background:var(--accent);border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid var(--border);}
+.cond-section.show{display:block;}
+
+/* payment cards */
+.pay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
+.pay-opt{border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all .2s;user-select:none;}
+.pay-opt:hover{border-color:var(--primary);background:var(--accent);}
+.pay-opt.selected{border-color:var(--primary);background:var(--accent);}
+.pay-icon{font-size:1.6rem;display:block;margin-bottom:4px;}
+.pay-label{font-size:13px;font-weight:600;color:var(--primary);}
+.pay-sub{font-size:11px;color:#607080;margin-top:2px;}
+
+/* ══ UPLOAD ZONE ══ */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--light);}
+.upload-zone:hover{border-color:var(--primary);background:var(--accent);}
+.upload-zone.dragging{border-color:var(--secondary);background:#fef9f0;transform:scale(1.01);}
+.upload-zone.has-file{border-color:var(--green);background:#f0faf5;border-style:solid;}
+.upload-zone .uz-icon{font-size:2rem;margin-bottom:10px;display:block;}
+.upload-zone strong{font-size:14px;color:var(--primary);display:block;margin-bottom:6px;}
+.uz-types{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:8px;}
+.uz-types span{display:inline-block;background:white;border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--primary);}
+.uz-maxsize{font-size:12px;color:#607080;margin-top:8px;}
+.uz-types{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;}
+.uz-types span{display:inline-block;background:white;border:1px solid var(--border);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;color:var(--primary);}
+.uz-maxsize{font-size:12px;color:#607080;margin-top:6px;}
+.upload-result{display:none;margin-top:10px;padding:10px 14px;background:white;border:1px solid var(--green);border-radius:8px;align-items:center;gap:10px;}
+.upload-result.show{display:flex;}
+.upload-result .ur-name{flex:1;font-size:13px;color:var(--green);font-weight:600;word-break:break-all;}
+.upload-result .ur-size{font-size:11px;color:#607080;white-space:nowrap;}
+.upload-result .ur-del{background:none;border:none;color:#607080;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;transition:color .15s;}
+.upload-result .ur-del:hover{color:var(--red);}
+.upload-progress{height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;display:none;}
+.upload-progress.show{display:block;}
+.upload-progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));width:0%;transition:width .5s ease;border-radius:2px;}
+
+/* submit */
+.btn-submit{width:100%;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--primary),#1a6e8a);color:white;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-submit:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,74,110,.3);}
+.form-terms{font-size:12px;color:#607080;text-align:center;margin-top:10px;}
+.form-terms a{color:var(--primary);}
+
+/* ══ SIDEBAR ══ */
+.sidebar{display:flex;flex-direction:column;gap:20px;}
+.side-card{background:white;border-radius:16px;padding:22px;box-shadow:0 4px 20px rgba(26,74,110,.07);}
+.side-card h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--primary);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.ev-item{border-left:3px solid var(--primary);padding:10px 12px;margin-bottom:10px;background:var(--accent);border-radius:0 8px 8px 0;}
+.ev-item:last-child{margin-bottom:0;}
+.ev-item .evd{font-size:11px;color:var(--secondary);font-weight:700;text-transform:uppercase;}
+.ev-item .evn{font-size:13px;color:var(--primary);font-weight:600;margin-top:2px;}
+.ev-item .evl{font-size:12px;color:#607080;}
+.steps-list{list-style:none;counter-reset:s;}
+.steps-list li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;font-size:13px;color:var(--text);}
+.steps-list li::before{content:counter(s);width:22px;height:22px;border-radius:50%;background:var(--primary);color:white;font-size:11px;font-weight:700;display:grid;place-items:center;flex-shrink:0;margin-top:1px;}
+.ci-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:13px;}
+.ci-row:last-child{margin-bottom:0;}
+.ci{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;font-size:16px;flex-shrink:0;}
+.ci-row strong{display:block;font-size:11px;color:#607080;}
+.ci-row span{color:var(--primary);}
+.info-box{background:linear-gradient(135deg,var(--accent),#e0f0f8);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:13px;color:var(--primary);line-height:1.6;}
+.info-box strong{display:block;margin-bottom:6px;font-size:14px;}
+{% endblock %}
+
+{% block content %}
+<!-- ══ HERO ══ -->
+<div class="page-hero">
+  <h1>{% if session.get('lang')=='ar' %}التسجيل{% else %}Inscription{% endif %}</h1>
+  <p>{% if session.get('lang')=='ar' %}سجّل في فعالياتنا — أكمل النموذج وأرسله{% else %}Inscrivez-vous à nos événements — remplissez et soumettez le formulaire{% endif %}</p>
+</div>
+
+<section>
+<div class="reg-wrap">
+
+  <!-- ══════════════ FORMULAIRE ══════════════ -->
+  <div class="form-card">
+    <div class="panel-title">{% if session.get('lang')=='ar' %}نموذج التسجيل{% else %}Formulaire d'inscription{% endif %}</div>
+    <div class="panel-sub">{% if session.get('lang')=='ar' %}اختر الفعالية وأدخل معلوماتك كاملة{% else %}Choisissez un événement et renseignez toutes vos informations{% endif %}</div>
+
+    <form method="POST" action="{{ url_for('register.index') }}" enctype="multipart/form-data" id="regForm">
+
+      <!-- ── 1. ÉVÉNEMENT ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}اختيار الفعالية{% else %}Choisir un événement{% endif %}</div>
+      <div class="event-list">
+        {% if events %}
+          {% for event in events %}
+          <label class="event-option" onclick="selectCard(this,'.event-list')">
+            <input type="radio" name="event_id" value="{{ event.id }}" required onclick="event.stopPropagation()"/>
+            <div class="ev-info">
+              <div class="ev-name">{{ event.title_ar if session.get('lang')=='ar' else event.title_fr }}</div>
+              <div class="ev-meta">
+                📅 {{ event.date_start.strftime('%d/%m/%Y') if event.date_start else '—' }}
+                {% if event.location %}&nbsp;|&nbsp;📍 {{ event.location }}{% endif %}
+              </div>
+            </div>
+            <span class="ev-badge {% if event.event_type=='congres' %}badge-c{% else %}badge-s{% endif %}">
+              {% if event.event_type=='congres' %}Congrès{% else %}Séminaire{% endif %}
+            </span>
+          </label>
+          {% endfor %}
+        {% else %}
+          <p style="color:#607080;font-size:14px;text-align:center;padding:20px 0;">
+            {% if session.get('lang')=='ar' %}لا توجد فعاليات متاحة حاليًا{% else %}Aucun événement disponible actuellement{% endif %}
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- ── 2. IDENTITÉ ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}الهوية{% else %}Identité{% endif %}</div>
+      <div class="form-row-3">
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}اللقب الشرفي{% else %}Sigle{% endif %}</label>
+          <select name="sigle">
+            <option value="">—</option>
+            <option value="Dr.">Dr.</option>
+            <option value="Pr.">Pr.</option>
+            <option value="SF">SF</option>
+            <option value="Mr.">Mr.</option>
+            <option value="Mme">Mme</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}اللقب{% else %}Nom{% endif %} <span class="req">*</span></label>
+          <input type="text" name="last_name" required
+                 placeholder="{% if session.get('lang')=='ar' %}لقبك{% else %}Votre nom{% endif %}"/>
+        </div>
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}الاسم{% else %}Prénom{% endif %} <span class="req">*</span></label>
+          <input type="text" name="first_name" required
+                 placeholder="{% if session.get('lang')=='ar' %}اسمك{% else %}Votre prénom{% endif %}"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}تاريخ الميلاد{% else %}Date de naissance{% endif %}</label>
+          <input type="date" name="birth_date"/>
+        </div>
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}الجنس{% else %}Genre{% endif %}</label>
+          <select name="gender">
+            <option value="">— {% if session.get('lang')=='ar' %}اختر{% else %}Sélectionner{% endif %} —</option>
+            <option value="M">{% if session.get('lang')=='ar' %}ذكر{% else %}Masculin{% endif %}</option>
+            <option value="F">{% if session.get('lang')=='ar' %}أنثى{% else %}Féminin{% endif %}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}التخصص{% else %}Spécialité{% endif %}</label>
+          <input type="text" name="specialty"
+                 placeholder="{% if session.get('lang')=='ar' %}تخصصك الطبي{% else %}Médecine Générale, Pédiatrie…{% endif %}"/>
+        </div>
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}المؤسسة الصحية{% else %}Établissement{% endif %}</label>
+          <input type="text" name="institution"
+                 placeholder="{% if session.get('lang')=='ar' %}اسم المؤسسة{% else %}CSB, Hôpital, Clinique…{% endif %}"/>
+        </div>
+      </div>
+
+      <!-- ── 3. CONTACT ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}معلومات الاتصال{% else %}Contact{% endif %}</div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" name="email" required placeholder="exemple@email.com"/>
+        </div>
+        <div class="fg">
+          <label>{% if session.get('lang')=='ar' %}الهاتف{% else %}Téléphone{% endif %}</label>
+          <input type="tel" name="phone" placeholder="+216 XX XXX XXX"/>
+        </div>
+      </div>
+
+      <!-- ── 4. HÉBERGEMENT ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}الإقامة{% else %}Hébergement{% endif %}</div>
+      <div class="toggle-group">
+        <label class="toggle-opt">
+          <input type="checkbox" name="hotel_requested" value="1"
+                 onchange="toggleSection('hotelSection', this.checked)"/>
+          🏨 {% if session.get('lang')=='ar' %}أطلب تسهيلات إيواء{% else %}Je souhaite un hébergement{% endif %}
+        </label>
+      </div>
+      <div class="cond-section" id="hotelSection">
+        <div class="form-row">
+          <div class="fg">
+            <label>{% if session.get('lang')=='ar' %}نوع الغرفة{% else %}Type de chambre{% endif %}</label>
+            <select name="room_type">
+              <option value="">— {% if session.get('lang')=='ar' %}اختر{% else %}Sélectionner{% endif %} —</option>
+              <option value="single">{% if session.get('lang')=='ar' %}غرفة مفردة{% else %}Single{% endif %}</option>
+              <option value="double">{% if session.get('lang')=='ar' %}غرفة مزدوجة{% else %}Double{% endif %}</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>{% if session.get('lang')=='ar' %}عدد الليالي{% else %}Nombre de nuits{% endif %}</label>
+            <input type="number" name="nights_count" min="1" max="10" value="1"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 5. ACCOMPAGNATEURS ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}المرافقون{% else %}Accompagnateurs{% endif %}</div>
+      <div class="toggle-group">
+        <label class="toggle-opt">
+          <input type="checkbox" name="with_spouse" value="1"/>
+          💑 {% if session.get('lang')=='ar' %}مع الزوج/ة{% else %}Avec conjoint(e){% endif %}
+        </label>
+      </div>
+      <div class="fg" style="max-width:240px;">
+        <label>{% if session.get('lang')=='ar' %}عدد الأطفال{% else %}Nombre d'enfants{% endif %}</label>
+        <input type="number" name="children_count" min="0" max="10" value="0"/>
+      </div>
+
+      <!-- ── 6. TRANSPORT ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}التنقل{% else %}Transport{% endif %}</div>
+      <div class="toggle-group">
+        <label class="toggle-opt">
+          <input type="checkbox" name="transport_needed" value="1"/>
+          🚌 {% if session.get('lang')=='ar' %}أحتاج إلى وسيلة نقل{% else %}J'ai besoin d'un transport{% endif %}
+        </label>
+      </div>
+
+      <!-- ── 7. PAIEMENT ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}طريقة الدفع{% else %}Méthode de paiement{% endif %}</div>
+      <div class="pay-grid">
+        <label class="pay-opt" onclick="selectCard(this,'.pay-grid')">
+          <input type="radio" name="payment_method" value="virement" style="display:none"/>
+          <span class="pay-icon">🏦</span>
+          <div class="pay-label">{% if session.get('lang')=='ar' %}تحويل بنكي{% else %}Virement{% endif %}</div>
+          <div class="pay-sub">{% if session.get('lang')=='ar' %}تحويل مسبق{% else %}Transfert anticipé{% endif %}</div>
+        </label>
+        <label class="pay-opt" onclick="selectCard(this,'.pay-grid')">
+          <input type="radio" name="payment_method" value="cheque" style="display:none"/>
+          <span class="pay-icon">📝</span>
+          <div class="pay-label">{% if session.get('lang')=='ar' %}شيك{% else %}Chèque{% endif %}</div>
+          <div class="pay-sub">{% if session.get('lang')=='ar' %}باسم AMGSBS{% else %}À l'ordre de AMGSBS{% endif %}</div>
+        </label>
+        <label class="pay-opt" onclick="selectCard(this,'.pay-grid')">
+          <input type="radio" name="payment_method" value="especes" style="display:none"/>
+          <span class="pay-icon">💵</span>
+          <div class="pay-label">{% if session.get('lang')=='ar' %}نقدًا{% else %}Espèces{% endif %}</div>
+          <div class="pay-sub">{% if session.get('lang')=='ar' %}عند التسجيل{% else %}Le jour J{% endif %}</div>
+        </label>
+        <label class="pay-opt" onclick="selectCard(this,'.pay-grid')">
+          <input type="radio" name="payment_method" value="enligne" style="display:none"/>
+          <span class="pay-icon">💳</span>
+          <div class="pay-label">{% if session.get('lang')=='ar' %}دفع إلكتروني{% else %}En ligne{% endif %}</div>
+          <div class="pay-sub">{% if session.get('lang')=='ar' %}بطاقة بنكية{% else %}Carte bancaire{% endif %}</div>
+        </label>
+      </div>
+
+      <!-- ── 8. REMARQUES ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}ملاحظات{% else %}Remarques{% endif %}</div>
+      <div class="fg">
+        <label>{% if session.get('lang')=='ar' %}طلبات خاصة{% else %}Demandes spéciales{% endif %}</label>
+        <textarea name="special_requests"
+                  placeholder="{% if session.get('lang')=='ar' %}نظام غذائي، إمكانية الوصول، ملاحظات أخرى…{% else %}Régime alimentaire, accessibilité, toute autre remarque…{% endif %}"></textarea>
+      </div>
+
+      <!-- ── 9. DOCUMENT (OPTIONNEL) ── -->
+      <div class="fsep">{% if session.get('lang')=='ar' %}وثيقة (اختياري){% else %}Document (optionnel){% endif %}</div>
+      <div class="fg">
+        <div class="upload-zone" id="uploadZone"
+             onclick="document.getElementById('fileInput').click()"
+             ondragover="event.preventDefault();this.classList.add('dragging')"
+             ondragleave="this.classList.remove('dragging')"
+             ondrop="handleDrop(event)">
+          <span class="uz-icon">📎</span>
+          <strong>
+            {% if session.get('lang')=='ar' %}انقر للرفع أو اسحب ملفك هنا{% else %}Cliquez pour télécharger ou glissez votre fichier{% endif %}
+          </strong>
+          <div class="uz-types">
+            <span>PDF</span><span>PPT</span><span>PPTX</span>
+            <span>DOC</span><span>DOCX</span><span>JPG</span><span>PNG</span>
+          </div>
+          <div class="uz-maxsize">{% if session.get('lang')=='ar' %}الحجم الأقصى 10 ميغا{% else %}Taille max. 10 Mo{% endif %}</div>
+        </div>
+        <!-- Résultat fichier sélectionné -->
+        <div class="upload-result" id="uploadResult">
+          <span class="ur-name" id="uploadName"></span>
+          <span class="ur-size" id="uploadSize"></span>
+          <button type="button" class="ur-del" onclick="removeFile()" title="Supprimer">✕</button>
+        </div>
+        <!-- Barre de progression -->
+        <div class="upload-progress" id="uploadProgress">
+          <div class="upload-progress-bar" id="uploadBar"></div>
+        </div>
+        <!-- Input caché -->
+        <input type="file" id="fileInput" name="attachment"
+               style="display:none"
+               accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png"
+               onchange="handleFile(this.files[0])"/>
+      </div>
+
+      <!-- ── SUBMIT ── -->
+      <button type="submit" class="btn-submit">
+        ✅ {% if session.get('lang')=='ar' %}تأكيد التسجيل{% else %}Confirmer mon inscription{% endif %}
+      </button>
+      <p class="form-terms">
+        {% if session.get('lang')=='ar' %}
+          بالإرسال تقبل <a href="#">شروط الاستخدام</a>
+        {% else %}
+          En soumettant, vous acceptez nos <a href="#">conditions d'utilisation</a>
+        {% endif %}
+      </p>
+    </form>
+  </div><!-- /form-card -->
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <aside class="sidebar">
+
+    <div class="side-card">
+      <h3>📅 {% if session.get('lang')=='ar' %}الفعاليات القادمة{% else %}Prochains événements{% endif %}</h3>
+      {% if events %}
+        {% for event in events[:4] %}
+        <div class="ev-item">
+          <div class="evd">{{ event.date_start.strftime('%d/%m/%Y') if event.date_start else '—' }}</div>
+          <div class="evn">{{ event.title_ar if session.get('lang')=='ar' else event.title_fr }}</div>
+          {% if event.location %}<div class="evl">📍 {{ event.location }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="font-size:13px;color:#607080;">
+          {% if session.get('lang')=='ar' %}لا توجد فعاليات{% else %}Aucun événement à venir{% endif %}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="side-card">
+      <div class="info-box">
+        <strong>💡 {% if session.get('lang')=='ar' %}معلومة{% else %}Bon à savoir{% endif %}</strong>
+        {% if session.get('lang')=='ar' %}
+          ستتلقى بريدًا إلكترونيًا للتأكيد بعد الإرسال. يبقى الوضع <strong>«قيد المراجعة»</strong> حتى تأكيد الإدارة.
+        {% else %}
+          Vous recevrez un email de confirmation après soumission. Le statut reste <strong>«en attente»</strong> jusqu'à validation par l'administration.
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="side-card">
+      <h3>📋 {% if session.get('lang')=='ar' %}خطوات التسجيل{% else %}Comment s'inscrire{% endif %}</h3>
+      <ol class="steps-list">
+        <li>{% if session.get('lang')=='ar' %}اختر الفعالية المطلوبة{% else %}Choisissez l'événement{% endif %}</li>
+        <li>{% if session.get('lang')=='ar' %}أدخل بياناتك الشخصية{% else %}Renseignez vos informations{% endif %}</li>
+        <li>{% if session.get('lang')=='ar' %}حدد خيارات الإقامة والنقل{% else %}Précisez hébergement et transport{% endif %}</li>
+        <li>{% if session.get('lang')=='ar' %}اختر طريقة الدفع{% else %}Choisissez le mode de paiement{% endif %}</li>
+        <li>{% if session.get('lang')=='ar' %}أرفق وثيقة إن لزم{% else %}Joignez un document si nécessaire{% endif %}</li>
+        <li>{% if session.get('lang')=='ar' %}أرسل وانتظر التأكيد{% else %}Soumettez et attendez la confirmation{% endif %}</li>
+      </ol>
+    </div>
+
+    <div class="side-card">
+      <h3>📞 {% if session.get('lang')=='ar' %}تحتاج مساعدة؟{% else %}Besoin d'aide ?{% endif %}</h3>
+      <div class="ci-row">
+        <div class="ci">📧</div>
+        <div><strong>Email</strong><span>amgsbsfax@gmail.com</span></div>
+      </div>
+      <div class="ci-row">
+        <div class="ci">📞</div>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}الهاتف{% else %}Téléphone{% endif %}</strong>
+          <span>+216 72 XXX XXX</span>
+        </div>
+      </div>
+      <div class="ci-row">
+        <div class="ci">📍</div>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}العنوان{% else %}Adresse{% endif %}</strong>
+          <span>{% if session.get('lang')=='ar' %}شارع الجمهورية، صفاقس{% else %}Avenue de la République, Sfax{% endif %}</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── Sélection carte (event / paiement) ── */
+function selectCard(el, selector) {
+  el.closest(selector).querySelectorAll('.event-option,.pay-opt')
+    .forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  const r = el.querySelector('input[type=radio]');
+  if (r) r.checked = true;
+}
+
+/* ── Section conditionnelle (hébergement) ── */
+function toggleSection(id, show) {
+  document.getElementById(id).classList.toggle('show', show);
+}
+
+/* ══ UPLOAD ══ */
+const ALLOWED_EXT = ['pdf','ppt','pptx','doc','docx','jpg','jpeg','png'];
+const MAX_BYTES   = 10 * 1024 * 1024; // 10 Mo
+
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (!ALLOWED_EXT.includes(ext)) {
+    alert('{% if session.get("lang")=="ar" %}نوع الملف غير مدعوم. الأنواع المقبولة: PDF, PPT, PPTX, DOC, DOCX, JPG, PNG{% else %}Type de fichier non supporté. Types acceptés : PDF, PPT, PPTX, DOC, DOCX, JPG, PNG{% endif %}');
+    document.getElementById('fileInput').value = '';
+    return;
+  }
+  if (file.size > MAX_BYTES) {
+    alert('{% if session.get("lang")=="ar" %}حجم الملف يتجاوز 10 ميغابايت{% else %}Le fichier dépasse 10 Mo{% endif %}');
+    document.getElementById('fileInput').value = '';
+    return;
+  }
+
+  /* Affichage nom + taille */
+  const size = file.size < 1024 * 1024
+    ? (file.size / 1024).toFixed(0) + ' Ko'
+    : (file.size / 1024 / 1024).toFixed(2) + ' Mo';
+  document.getElementById('uploadName').textContent = '📄 ' + file.name;
+  document.getElementById('uploadSize').textContent = size;
+  document.getElementById('uploadResult').classList.add('show');
+  document.getElementById('uploadZone').classList.add('has-file');
+
+  /* Barre de progression simulée */
+  const prog = document.getElementById('uploadProgress');
+  const bar  = document.getElementById('uploadBar');
+  prog.classList.add('show');
+  bar.style.width = '0%';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { bar.style.width = '100%'; });
+  });
+  setTimeout(() => { prog.classList.remove('show'); bar.style.width = '0%'; }, 1400);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  try {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('fileInput').files = dt.files;
+  } catch(_) {}
+  handleFile(file);
+}
+
+function removeFile() {
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadResult').classList.remove('show');
+  document.getElementById('uploadZone').classList.remove('has-file');
+  document.getElementById('uploadName').textContent = '';
+  document.getElementById('uploadSize').textContent = '';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{% if abstract %}Modifier{% else %}Ajouter{% endif %} Résumé{% endblock %}
+{% block page_title %}{% if abstract %}✏️ Modifier le résumé{% else %}➕ Nouveau résumé{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:800px">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="card">
+      <h3>📄 Informations du résumé</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Événement associé</label>
+          <select name="event_id">
+            <option value="">-- Sélectionner --</option>
+            {% for ev in events %}
+            <option value="{{ ev.id }}" {% if abstract and abstract.event_id==ev.id %}selected{% endif %}>{{ ev.title_fr }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type de présentation</label>
+          <select name="presentation_type">
+            <option value="oral" {% if abstract and abstract.presentation_type=='oral' %}selected{% endif %}>🎤 Communication orale</option>
+            <option value="poster" {% if abstract and abstract.presentation_type=='poster' %}selected{% endif %}>📋 Poster</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nom de l'auteur *</label>
+          <input type="text" name="author_name" required value="{{ abstract.author_name if abstract else '' }}">
+        </div>
+        <div class="form-group">
+          <label>Institution</label>
+          <input type="text" name="author_institution" value="{{ abstract.author_institution if abstract else '' }}">
+        </div>
+        <div class="form-group full">
+          <label>Titre (Français) *</label>
+          <input type="text" name="title_fr" required value="{{ abstract.title_fr if abstract else '' }}">
+        </div>
+        <div class="form-group full">
+          <label>العنوان (العربية)</label>
+          <input type="text" name="title_ar" value="{{ abstract.title_ar if abstract else '' }}" style="direction:rtl">
+        </div>
+        <div class="form-group full">
+          <label>Contenu / Résumé (Français)</label>
+          <textarea name="content_fr" rows="5">{{ abstract.content_fr if abstract else '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Prix / Récompense</label>
+          <select name="award">
+            <option value="" {% if not abstract or not abstract.award %}selected{% endif %}>Aucun prix</option>
+            <option value="1er_prix" {% if abstract and abstract.award=='1er_prix' %}selected{% endif %}>🥇 1er Prix</option>
+            <option value="2eme_prix" {% if abstract and abstract.award=='2eme_prix' %}selected{% endif %}>🥈 2ème Prix</option>
+            <option value="3eme_prix" {% if abstract and abstract.award=='3eme_prix' %}selected{% endif %}>🥉 3ème Prix</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mise en avant (Featured)</label>
+          <select name="is_featured">
+            <option value="0" {% if not abstract or not abstract.is_featured %}selected{% endif %}>Non</option>
+            <option value="1" {% if abstract and abstract.is_featured %}selected{% endif %}>⭐ Oui — affiché en page d'accueil</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select name="is_published">
+            <option value="1" {% if abstract and abstract.is_published %}selected{% endif %}>✅ Publié</option>
+            <option value="0" {% if not abstract or not abstract.is_published %}selected{% endif %}>📝 Brouillon</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Présentation PPTX {% if abstract and abstract.pptx_url %}<a href="{{ abstract.pptx_url }}" target="_blank" style="font-size:11px;color:var(--secondary)">📊 Voir actuel</a>{% endif %}</label>
+          <input type="file" name="pptx" accept=".pptx,.ppt">
+        </div>
+        <div class="form-group full">
+          <label>Document PDF {% if abstract and abstract.pdf_url %}<a href="{{ abstract.pdf_url }}" target="_blank" style="font-size:11px;color:var(--secondary)">📑 Voir actuel</a>{% endif %}</label>
+          <input type="file" name="pdf" accept=".pdf">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+      <a href="{{ url_for('admin.abstracts') }}" class="btn btn-gray">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

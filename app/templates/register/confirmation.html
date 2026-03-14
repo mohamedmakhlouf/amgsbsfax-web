@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% block title %}{% if session.get('lang')=='ar' %}تأكيد التسجيل{% else %}Confirmation d'inscription{% endif %}{% endblock %}
+
+{% block extra_css %}
+/* ══ HERO ══ */
+.page-hero{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;padding:60px 40px;text-align:center;}
+.page-hero h1{font-family:'Playfair Display',serif;font-size:36px;margin-bottom:12px;}
+.page-hero p{opacity:.8;font-size:15px;}
+
+/* ══ LAYOUT ══ */
+.confirm-wrap{max-width:860px;margin:0 auto;padding:48px 40px;}
+@media(max-width:768px){.confirm-wrap{padding:32px 16px;}}
+
+/* ══ SUCCESS CARD ══ */
+.success-card{background:white;border-radius:24px;box-shadow:0 8px 48px rgba(26,74,110,.12);overflow:hidden;margin-bottom:28px;}
+.sc-header{background:linear-gradient(135deg,var(--green),#1a8a5e);padding:40px;text-align:center;}
+.sc-icon{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 16px;}
+.sc-header h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:white;margin-bottom:8px;}
+.sc-header p{color:rgba(255,255,255,.85);font-size:14px;}
+.sc-ref{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;font-size:13px;font-weight:700;padding:6px 18px;border-radius:999px;margin-top:12px;letter-spacing:1px;}
+
+/* ══ DÉTAILS ══ */
+.sc-body{padding:36px;}
+.detail-section{margin-bottom:28px;}
+.detail-section:last-child{margin-bottom:0;}
+.ds-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--secondary);display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.ds-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:580px){.detail-grid{grid-template-columns:1fr;}}
+.detail-item{background:var(--light);border-radius:10px;padding:12px 16px;}
+.detail-item.full{grid-column:1/-1;}
+.di-label{font-size:11px;font-weight:700;color:#607080;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.di-value{font-size:14px;color:var(--primary);font-weight:500;}
+.di-value.highlight{color:var(--green);font-weight:700;}
+
+/* ══ EVENT CARD ══ */
+.event-highlight{background:linear-gradient(135deg,var(--accent),#d0eaf8);border:2px solid var(--primary);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:20px;margin-bottom:28px;}
+@media(max-width:580px){.event-highlight{flex-direction:column;text-align:center;}}
+.eh-date{background:var(--primary);color:white;border-radius:12px;padding:12px 16px;text-align:center;flex-shrink:0;}
+.eh-date .ed-day{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;line-height:1;}
+.eh-date .ed-month{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px;}
+.eh-info{}
+.eh-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:999px;background:var(--primary);color:white;display:inline-block;margin-bottom:6px;}
+.eh-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--primary);font-weight:700;margin-bottom:4px;}
+.eh-meta{font-size:13px;color:#607080;}
+
+/* ══ STATUS BADGE ══ */
+.status-row{display:flex;align-items:center;justify-content:space-between;background:var(--light);border-radius:12px;padding:16px 20px;margin-bottom:28px;}
+.sr-label{font-size:13px;color:#607080;}
+.sr-badge{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+.badge-pending{color:#856404;background:#fef3cd;padding:5px 14px;border-radius:999px;}
+.badge-confirmed{color:#155724;background:#d4edda;padding:5px 14px;border-radius:999px;}
+
+/* ══ NEXT STEPS ══ */
+.next-steps{background:white;border-radius:20px;box-shadow:0 4px 24px rgba(26,74,110,.08);padding:32px;margin-bottom:28px;}
+.next-steps h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--primary);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.steps-list{list-style:none;counter-reset:s;}
+.steps-list li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;font-size:14px;color:var(--text);line-height:1.5;}
+.steps-list li:last-child{margin-bottom:0;}
+.steps-list li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;font-size:12px;font-weight:700;display:grid;place-items:center;flex-shrink:0;margin-top:1px;}
+.steps-list li strong{color:var(--primary);}
+
+/* ══ PAYMENT INFO ══ */
+.payment-card{border:2px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:28px;}
+.payment-card.virement{border-color:#1565c0;background:#e3f2fd;}
+.payment-card.cheque{border-color:#6a1b9a;background:#f3e5f5;}
+.payment-card.especes{border-color:var(--green);background:#f0faf5;}
+.payment-card.enligne{border-color:var(--secondary);background:#fef9f0;}
+.pc-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.pc-icon{font-size:1.8rem;}
+.pc-title{font-weight:700;color:var(--primary);font-size:15px;}
+.pc-body{font-size:13px;color:#607080;line-height:1.7;}
+.pc-body strong{color:var(--primary);}
+
+/* ══ ACTIONS ══ */
+.confirm-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.btn-print{background:var(--primary);color:white;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-print:hover{opacity:.9;transform:translateY(-1px);}
+.btn-home{background:white;color:var(--primary);border:2px solid var(--primary);padding:10px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-home:hover{background:var(--accent);}
+.btn-events{background:var(--secondary);color:white;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-events:hover{opacity:.9;}
+
+/* ══ PRINT ══ */
+@media print {
+  header, footer, .confirm-actions, .next-steps, nav, .top-bar, .alert-banner { display:none !important; }
+  .confirm-wrap { padding:0; }
+  .success-card { box-shadow:none; border:1px solid #ddd; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <h1>{% if session.get('lang')=='ar' %}تأكيد التسجيل{% else %}Confirmation d'inscription{% endif %}</h1>
+  <p>{% if session.get('lang')=='ar' %}شكرًا لتسجيلك — فيما يلي ملخص طلبك{% else %}Merci pour votre inscription — voici le récapitulatif de votre demande{% endif %}</p>
+</div>
+
+<div class="confirm-wrap">
+
+  <!-- ══ CARTE SUCCÈS ══ -->
+  <div class="success-card">
+    <div class="sc-header">
+      <div class="sc-icon">✅</div>
+      <h2>{% if session.get('lang')=='ar' %}تم التسجيل بنجاح!{% else %}Inscription enregistrée !{% endif %}</h2>
+      <p>{% if session.get('lang')=='ar' %}سيتم التواصل معك قريبًا للتأكيد النهائي{% else %}Vous serez contacté prochainement pour la confirmation finale{% endif %}</p>
+      <div class="sc-ref">
+        {% if session.get('lang')=='ar' %}رقم الطلب{% else %}Réf{% endif %} : #{{ '%05d'|format(registration.id) }}
+      </div>
+    </div>
+
+    <div class="sc-body">
+
+      <!-- Événement -->
+      {% if registration.event %}
+      <div class="event-highlight">
+        <div class="eh-date">
+          <div class="ed-day">{{ registration.event.date_start.strftime('%d') if registration.event.date_start else '—' }}</div>
+          <div class="ed-month">{{ registration.event.date_start.strftime('%b %Y') if registration.event.date_start else '' }}</div>
+        </div>
+        <div class="eh-info">
+          <span class="eh-type">{{ 'Congrès' if registration.event.event_type=='congres' else 'Séminaire' }}</span>
+          <div class="eh-title">{{ registration.event.title_ar if session.get('lang')=='ar' else registration.event.title_fr }}</div>
+          <div class="eh-meta">
+            {% if registration.event.location %}📍 {{ registration.event.location }}{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Statut -->
+      <div class="status-row">
+        <span class="sr-label">{% if session.get('lang')=='ar' %}حالة التسجيل{% else %}Statut de l'inscription{% endif %}</span>
+        <span class="sr-badge">
+          {% if registration.status == 'confirmed' %}
+            <span class="badge-confirmed">✅ {% if session.get('lang')=='ar' %}مؤكد{% else %}Confirmé{% endif %}</span>
+          {% else %}
+            <span class="badge-pending">⏳ {% if session.get('lang')=='ar' %}قيد المراجعة{% else %}En attente de validation{% endif %}</span>
+          {% endif %}
+        </span>
+      </div>
+
+      <!-- Identité -->
+      <div class="detail-section">
+        <div class="ds-title">👤 {% if session.get('lang')=='ar' %}معلومات شخصية{% else %}Informations personnelles{% endif %}</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الاسم الكامل{% else %}Nom complet{% endif %}</div>
+            <div class="di-value">{{ registration.sigle or '' }} {{ registration.first_name }} {{ registration.last_name }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الجنس{% else %}Genre{% endif %}</div>
+            <div class="di-value">{{ 'Masculin' if registration.gender=='M' else ('Féminin' if registration.gender=='F' else '—') }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}تاريخ الميلاد{% else %}Date de naissance{% endif %}</div>
+            <div class="di-value">{{ registration.birth_date.strftime('%d/%m/%Y') if registration.birth_date else '—' }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}التخصص{% else %}Spécialité{% endif %}</div>
+            <div class="di-value">{{ registration.specialty or '—' }}</div>
+          </div>
+          <div class="detail-item full">
+            <div class="di-label">{% if session.get('lang')=='ar' %}المؤسسة{% else %}Établissement{% endif %}</div>
+            <div class="di-value">{{ registration.institution or '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="detail-section">
+        <div class="ds-title">📞 {% if session.get('lang')=='ar' %}معلومات الاتصال{% else %}Contact{% endif %}</div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="di-label">Email</div>
+            <div class="di-value">{{ registration.email }}</div>
+          </div>
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الهاتف{% else %}Téléphone{% endif %}</div>
+            <div class="di-value">{{ registration.phone or '—' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hébergement & Transport -->
+      {% if registration.hotel_requested or registration.transport_needed or registration.with_spouse or registration.children_count %}
+      <div class="detail-section">
+        <div class="ds-title">🏨 {% if session.get('lang')=='ar' %}خدمات إضافية{% else %}Services demandés{% endif %}</div>
+        <div class="detail-grid">
+          {% if registration.hotel_requested %}
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الإقامة{% else %}Hébergement{% endif %}</div>
+            <div class="di-value highlight">
+              ✅ {{ 'Single' if registration.room_type=='single' else 'Double' }}
+              — {{ registration.nights_count }} {% if session.get('lang')=='ar' %}ليلة{% else %}nuit(s){% endif %}
+            </div>
+          </div>
+          {% endif %}
+          {% if registration.transport_needed %}
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}النقل{% else %}Transport{% endif %}</div>
+            <div class="di-value highlight">✅ {% if session.get('lang')=='ar' %}مطلوب{% else %}Demandé{% endif %}</div>
+          </div>
+          {% endif %}
+          {% if registration.with_spouse %}
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الزوج/ة{% else %}Conjoint(e){% endif %}</div>
+            <div class="di-value highlight">✅ {% if session.get('lang')=='ar' %}مرافق{% else %}Accompagnant{% endif %}</div>
+          </div>
+          {% endif %}
+          {% if registration.children_count %}
+          <div class="detail-item">
+            <div class="di-label">{% if session.get('lang')=='ar' %}الأطفال{% else %}Enfants{% endif %}</div>
+            <div class="di-value">{{ registration.children_count }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Paiement -->
+      <div class="detail-section">
+        <div class="ds-title">💳 {% if session.get('lang')=='ar' %}الدفع{% else %}Paiement{% endif %}</div>
+        {% if registration.payment_method == 'virement' %}
+        <div class="payment-card virement">
+          <div class="pc-header"><span class="pc-icon">🏦</span><span class="pc-title">{% if session.get('lang')=='ar' %}تحويل بنكي{% else %}Virement bancaire{% endif %}</span></div>
+          <div class="pc-body">
+            {% if session.get('lang')=='ar' %}
+              يرجى تحويل مبلغ الاشتراك إلى حساب الجمعية مع الإشارة إلى رقم طلبك <strong>#{{ '%05d'|format(registration.id) }}</strong>.
+            {% else %}
+              Veuillez effectuer le virement du montant de l'inscription au compte de l'association en mentionnant votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.
+            {% endif %}
+          </div>
+        </div>
+        {% elif registration.payment_method == 'cheque' %}
+        <div class="payment-card cheque">
+          <div class="pc-header"><span class="pc-icon">📝</span><span class="pc-title">{% if session.get('lang')=='ar' %}شيك{% else %}Chèque{% endif %}</span></div>
+          <div class="pc-body">
+            {% if session.get('lang')=='ar' %}
+              يرجى إرسال الشيك باسم <strong>AMGSBS Sfax</strong> مع ذكر رقم طلبك.
+            {% else %}
+              Envoyez votre chèque à l'ordre de <strong>AMGSBS Sfax</strong> en mentionnant votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.
+            {% endif %}
+          </div>
+        </div>
+        {% elif registration.payment_method == 'especes' %}
+        <div class="payment-card especes">
+          <div class="pc-header"><span class="pc-icon">💵</span><span class="pc-title">{% if session.get('lang')=='ar' %}نقدًا{% else %}Espèces{% endif %}</span></div>
+          <div class="pc-body">
+            {% if session.get('lang')=='ar' %}
+              سيتم تسوية الدفع نقدًا عند التسجيل في مكتب الاستقبال يوم الفعالية.
+            {% else %}
+              Le paiement en espèces sera effectué à l'accueil le jour de l'événement. Présentez votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.
+            {% endif %}
+          </div>
+        </div>
+        {% elif registration.payment_method == 'enligne' %}
+        <div class="payment-card enligne">
+          <div class="pc-header"><span class="pc-icon">💳</span><span class="pc-title">{% if session.get('lang')=='ar' %}دفع إلكتروني{% else %}Paiement en ligne{% endif %}</span></div>
+          <div class="pc-body">
+            {% if session.get('lang')=='ar' %}
+              ستتلقى رابط الدفع الإلكتروني على بريدك الإلكتروني <strong>{{ registration.email }}</strong>.
+            {% else %}
+              Vous recevrez le lien de paiement en ligne sur votre email <strong>{{ registration.email }}</strong>.
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Remarques -->
+      {% if registration.special_requests %}
+      <div class="detail-section">
+        <div class="ds-title">📝 {% if session.get('lang')=='ar' %}ملاحظات{% else %}Remarques{% endif %}</div>
+        <div class="detail-item full" style="background:var(--light);border-radius:10px;padding:14px 16px;">
+          <div class="di-value">{{ registration.special_requests }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Date d'inscription -->
+      <div style="text-align:right;font-size:12px;color:#aab;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        {% if session.get('lang')=='ar' %}تاريخ التسجيل{% else %}Inscrit le{% endif %} :
+        {{ registration.registered_at.strftime('%d/%m/%Y à %H:%M') if registration.registered_at else '—' }}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ PROCHAINES ÉTAPES ══ -->
+  <div class="next-steps">
+    <h3>📋 {% if session.get('lang')=='ar' %}الخطوات التالية{% else %}Prochaines étapes{% endif %}</h3>
+    <ol class="steps-list">
+      <li>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}تأكيد بالبريد الإلكتروني{% else %}Confirmation par email{% endif %}</strong><br>
+          {% if session.get('lang')=='ar' %}
+            ستتلقى بريدًا إلكترونيًا على <strong>{{ registration.email }}</strong> يؤكد استلام طلبك.
+          {% else %}
+            Vous allez recevoir un email de confirmation à <strong>{{ registration.email }}</strong>.
+          {% endif %}
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}تسوية الدفع{% else %}Règlement du paiement{% endif %}</strong><br>
+          {% if session.get('lang')=='ar' %}
+            تأكد من إتمام عملية الدفع وفق الطريقة التي اخترتها.
+          {% else %}
+            Assurez-vous d'effectuer le paiement selon la méthode choisie.
+          {% endif %}
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}تأكيد الإدارة{% else %}Validation par l'administration{% endif %}</strong><br>
+          {% if session.get('lang')=='ar' %}
+            ستتم مراجعة طلبك وتأكيده من طرف الإدارة خلال 48 ساعة.
+          {% else %}
+            Votre dossier sera examiné et confirmé par l'administration sous 48h.
+          {% endif %}
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>{% if session.get('lang')=='ar' %}الحضور{% else %}Participation{% endif %}</strong><br>
+          {% if session.get('lang')=='ar' %}
+            احضر يوم الفعالية مع رقم المرجع الخاص بك.
+          {% else %}
+            Présentez-vous le jour de l'événement avec votre référence <strong>#{{ '%05d'|format(registration.id) }}</strong>.
+          {% endif %}
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ══ ACTIONS ══ -->
+  <div class="confirm-actions">
+    <button class="btn-print" onclick="window.print()">
+      🖨️ {% if session.get('lang')=='ar' %}طباعة الإيصال{% else %}Imprimer le reçu{% endif %}
+    </button>
+    <a href="{{ url_for('events.index') }}" class="btn-events">
+      📅 {% if session.get('lang')=='ar' %}الفعاليات{% else %}Voir les événements{% endif %}
+    </a>
+    <a href="{{ url_for('main.index') }}" class="btn-home">
+      🏠 {% if session.get('lang')=='ar' %}الرئيسية{% else %}Accueil{% endif %}
+    </a>
+  </div>
+
+</div>
+{% endblock %}

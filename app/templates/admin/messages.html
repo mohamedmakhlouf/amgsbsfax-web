@@ -1,0 +1,33 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}✉️ Messages de contact{% endblock %}
+{% block content %}
+<div style="margin-bottom:20px">
+  <p style="color:#607080;font-size:14px">{{ msgs|length }} message(s) — <strong>{{ msgs|selectattr('is_read','equalto',False)|list|length }}</strong> non lu(s)</p>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>Nom</th><th>Email</th><th>Sujet</th><th>Message</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for m in msgs %}
+      <tr style="{% if not m.is_read %}background:#fffef5;font-weight:600{% endif %}">
+        <td>{% if not m.is_read %}<span style="color:var(--secondary)">● </span>{% endif %}{{ m.name }}</td>
+        <td style="font-size:12px"><a href="mailto:{{ m.email }}" style="color:var(--primary)">{{ m.email }}</a></td>
+        <td>{{ m.subject or '—' }}</td>
+        <td style="font-size:12px;color:#607080;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.message[:60] }}...</td>
+        <td style="font-size:11px;color:#607080">{{ m.sent_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td><span class="badge-status {% if m.is_read %}badge-confirmed{% else %}badge-submitted{% endif %}">{% if m.is_read %}Lu{% else %}Nouveau{% endif %}</span></td>
+        <td>
+          <a href="{{ url_for('admin.message_read', id=m.id) }}" class="btn-sm btn-blue">👁️ Lire</a>
+          <form method="POST" action="{{ url_for('admin.message_delete', id=m.id) }}" style="display:inline" onsubmit="return confirm('Supprimer ?')">
+            <button type="submit" class="btn-sm btn-red">🗑️</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7"><div class="empty-state"><div class="icon">✉️</div><p>Aucun message reçu</p></div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
