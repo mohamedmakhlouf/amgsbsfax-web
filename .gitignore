@@ -5,3 +5,4 @@ echo *.db >> .gitignore
 echo .env >> .gitignore
 .env
 .env
+venv/
