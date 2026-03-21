@@ -51,7 +51,7 @@ def send_confirmation_inscription(registration):
                 f"Bonjour {registration.first_name} {registration.last_name},\n\n"
                 f"Votre inscription a bien ete enregistree.\n"
                 f"Reference : #{registration.id:05d}\n\n"
-                f"Pour toute question : amgsbs.sfax@outlook.com\n\n"
+                f"Pour toute question : amgsbsfax@gmail.com\n\n"
                 f"Cordialement,\nAMGSBS Sfax"
             )
         )
@@ -79,7 +79,7 @@ def send_confirmation_email_admin(registration):
                 f"Nous avons le plaisir de vous informer que votre inscription a ete confirmee.\n"
                 f"Reference : #{registration.id:05d}\n"
                 f"Evenement : {registration.event.title_fr if registration.event else ''}\n\n"
-                f"Pour toute question : amgsbs.sfax@outlook.com\n\n"
+                f"Pour toute question : amgsbsfax@gmail.com\n\n"
                 f"Cordialement,\nAMGSBS Sfax"
             )
         )
