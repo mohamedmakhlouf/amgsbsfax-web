@@ -14,9 +14,19 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        'pool_recycle': 300,
+    'pool_pre_ping': True,
+    'pool_recycle': 280,
+    'pool_size': 5,
+    'max_overflow': 2,
+    'connect_args': {
+        'connect_timeout': 10,
+        'keepalives': 1,
+        'keepalives_idle': 30,
+        'keepalives_interval': 5,
+        'keepalives_count': 5,
     }
+}
+
 
     # ── Cloudinary ────────────────────────────────────────
     CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
