@@ -7,6 +7,12 @@ import requests
 from threading import Thread
 from flask import render_template, current_app
 
+# Objet factice pour compatibilité avec __init__.py
+class _FakeMail:
+    def init_app(self, app):
+        pass
+
+mail = _FakeMail()
 
 BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 
