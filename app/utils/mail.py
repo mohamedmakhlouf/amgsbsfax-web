@@ -1,36 +1,70 @@
 # ============================================================
 # app/utils/mail.py
-# Utilitaire envoi d'emails — AMGSBS Sfax
+# Utilitaire envoi d'emails via API Brevo — AMGSBS Sfax
 # ============================================================
-from flask import render_template, current_app
-from flask_mail import Mail, Message
+import os
+import requests
 from threading import Thread
+from flask import render_template, current_app
 
-mail = Mail()
+
+BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 
 
-def _send_async(app, msg):
+def _send_via_brevo(api_key, sender_email, sender_name, recipients, subject, html_body, text_body=None):
+    """Envoi via l'API HTTP Brevo."""
+    payload = {
+        'sender': {'name': sender_name, 'email': sender_email},
+        'to': [{'email': r} for r in recipients],
+        'subject': subject,
+        'htmlContent': html_body,
+    }
+    if text_body:
+        payload['textContent'] = text_body
+
+    try:
+        response = requests.post(
+            BREVO_API_URL,
+            headers={
+                'api-key': api_key,
+                'Content-Type': 'application/json',
+            },
+            json=payload,
+            timeout=15
+        )
+        if response.status_code in (200, 201):
+            print(f"Email envoyé avec succès à {recipients}")
+            return True
+        else:
+            print(f"Erreur Brevo API {response.status_code}: {response.text}")
+            return False
+    except Exception as e:
+        print(f"Erreur envoi email : {e}")
+        return False
+
+
+def _send_async(app, api_key, sender_email, sender_name, recipients, subject, html_body, text_body=None):
     """Envoi en arrière-plan pour ne pas bloquer la requête."""
     with app.app_context():
-        try:
-            mail.send(msg)
-        except Exception as e:
-            print(f"ERREUR EMAIL : {e}")
-            app.logger.error(f"Erreur envoi email : {e}")
+        _send_via_brevo(api_key, sender_email, sender_name, recipients, subject, html_body, text_body)
 
 
 def send_email(subject, recipients, html_body, text_body=None):
-    """Envoie un email HTML en arrière-plan."""
+    """Envoie un email HTML en arrière-plan via Brevo API."""
     app = current_app._get_current_object()
-    msg = Message(
-        subject    = subject,
-        sender     = app.config.get('MAIL_DEFAULT_SENDER', app.config.get('MAIL_USERNAME')),
-        recipients = recipients,
-    )
-    msg.html = html_body
-    if text_body:
-        msg.body = text_body
-    Thread(target=_send_async, args=(app, msg)).start()
+    api_key = os.environ.get('BREVO_API_KEY') or app.config.get('BREVO_API_KEY')
+    sender_email = app.config.get('MAIL_DEFAULT_SENDER', 'amgsbsfax@gmail.com')
+    sender_name = 'AMGSBS Sfax'
+
+    if not api_key:
+        app.logger.error("BREVO_API_KEY non configurée !")
+        return False
+
+    Thread(
+        target=_send_async,
+        args=(app, api_key, sender_email, sender_name, recipients, subject, html_body, text_body)
+    ).start()
+    return True
 
 
 def send_confirmation_inscription(registration):
@@ -44,10 +78,10 @@ def send_confirmation_inscription(registration):
             registration=registration
         )
         send_email(
-            subject    = f"Confirmation d'inscription - AMGSBS Sfax (Ref. #{registration.id:05d})",
-            recipients = [registration.email],
-            html_body  = html,
-            text_body  = (
+            subject   = f"Confirmation d'inscription - AMGSBS Sfax (Ref. #{registration.id:05d})",
+            recipients= [registration.email],
+            html_body = html,
+            text_body = (
                 f"Bonjour {registration.first_name} {registration.last_name},\n\n"
                 f"Votre inscription a bien ete enregistree.\n"
                 f"Reference : #{registration.id:05d}\n\n"
@@ -63,7 +97,7 @@ def send_confirmation_inscription(registration):
 
 def send_confirmation_email_admin(registration):
     """
-    Envoye depuis l'admin quand l'admin confirme manuellement une inscription.
+    Envoyé depuis l'admin quand l'admin confirme manuellement une inscription.
     """
     try:
         html = render_template(
@@ -71,10 +105,10 @@ def send_confirmation_email_admin(registration):
             registration=registration
         )
         send_email(
-            subject    = f"Votre inscription est confirmee - AMGSBS Sfax (Ref. #{registration.id:05d})",
-            recipients = [registration.email],
-            html_body  = html,
-            text_body  = (
+            subject   = f"Votre inscription est confirmee - AMGSBS Sfax (Ref. #{registration.id:05d})",
+            recipients= [registration.email],
+            html_body = html,
+            text_body = (
                 f"Bonjour Dr. {registration.first_name} {registration.last_name},\n\n"
                 f"Nous avons le plaisir de vous informer que votre inscription a ete confirmee.\n"
                 f"Reference : #{registration.id:05d}\n"
