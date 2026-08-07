@@ -102,7 +102,7 @@ class Event(db.Model):
     updated_at      = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relations
-    registrations   = db.relationship('Registration', backref='event', lazy='dynamic')
+    registrations   = db.relationship('Registration', backref='event', lazy='dynamic', cascade='all, delete-orphan')
     abstracts       = db.relationship('Abstract', backref='event', lazy='dynamic')
     photos          = db.relationship('EventPhoto', backref='event', lazy='dynamic')
 
