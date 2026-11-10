@@ -16,6 +16,7 @@ flask-sqlalchemy==3.1.1
 flask-wtf==1.2.1
 greenlet>=3.0.0
 gunicorn==22.0.0
+openpyxl
 idna==3.11
 importlib-metadata==8.5.0
 importlib-resources==6.4.5
@@ -35,3 +36,5 @@ werkzeug==3.0.3
 wtforms==3.1.2
 zipp==3.20.2
 requests==2.31.0
+
+openpyxl

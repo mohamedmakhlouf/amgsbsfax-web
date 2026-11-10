@@ -1,9 +1,13 @@
 # app/routes/admin.py 03 mars 2026
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import io
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import User, Member, Event, Registration, Abstract, News, ContactMessage, GalleryPhoto, db
 from app.utils.cloudinary_helper import upload_file, delete_file
 from datetime import datetime
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -219,6 +223,78 @@ def registrations():
         q = q.filter_by(status=status)
     regs = q.all()
     return render_template('admin/registrations.html', regs=regs)
+
+@admin_bp.route('/registrations/export')
+# @login_required            # <- mettre le même décorateur que les autres routes admin
+def registrations_export():
+    status = request.args.get('status')  # 'submitted', 'confirmed' ou vide
+
+    # Même requête que la page Inscriptions (reprenez la vôtre si elle diffère)
+    query = Registration.query
+    if status in ('submitted', 'confirmed', 'cancelled'):
+        query = query.filter_by(status=status)
+    regs = query.order_by(Registration.registered_at.desc()).all()
+
+    statut_txt = {
+        'submitted': 'En attente',
+        'confirmed': 'Confirmé',
+        'cancelled': 'Annulé',
+    }
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Inscriptions'
+
+    entetes = [
+        'Nom', 'Spécialité', 'Événement', 'Email', 'Téléphone',
+        'Hôtel', 'Type de chambre', 'Nuits', 'Transport',
+        'Paiement', 'Statut paiement', 'Statut', 'Date',
+    ]
+    ws.append(entetes)
+
+    for r in regs:
+        ws.append([
+            f"{r.sigle or ''} {r.first_name or ''} {r.last_name or ''}".strip(),
+            r.specialty or '',
+            r.event.title_fr if r.event else '',
+            r.email or '',
+            r.phone or '',
+            'Oui' if r.hotel_requested else 'Non',
+            r.room_type or '',
+            r.nights_count or '',
+            'Oui' if r.transport_needed else 'Non',
+            r.payment_method or '',
+            r.payment_status or 'non payé',
+            statut_txt.get(r.status, r.status or ''),
+            r.registered_at.strftime('%d/%m/%Y') if r.registered_at else '',
+        ])
+
+    # Mise en forme : en-tête en gras sur fond bleu, ligne figée, largeurs auto
+    fond = PatternFill('solid', fgColor='1F4E79')
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color='FFFFFF')
+        cell.fill = fond
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+    ws.freeze_panes = 'A2'
+    ws.auto_filter.ref = ws.dimensions
+
+    for i, col in enumerate(ws.columns, start=1):
+        largeur = max(len(str(c.value)) if c.value is not None else 0 for c in col)
+        ws.column_dimensions[get_column_letter(i)].width = min(largeur + 3, 45)
+
+    flux = io.BytesIO()
+    wb.save(flux)
+    flux.seek(0)
+
+    suffixe = {'submitted': '_en_attente', 'confirmed': '_confirmes'}.get(status, '')
+    nom = f"inscriptions{suffixe}_{datetime.now():%Y%m%d}.xlsx"
+
+    return send_file(
+        flux,
+        as_attachment=True,
+        download_name=nom,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )    
 
 @admin_bp.route('/inscriptions/<int:id>/statut', methods=['POST'])
 @login_required

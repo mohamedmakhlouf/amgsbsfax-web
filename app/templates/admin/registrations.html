@@ -1,4 +1,4 @@
-{# ---app\templates\admin\registration.html---01 mars 2026--- #}
+{# ---app\templates\admin\registration.html---10 nov 2026--- #}
 {% extends "admin/base_admin.html" %}
 {% block title %}Inscriptions{% endblock %}
 {% block page_title %}📋 Inscriptions{% endblock %}
@@ -10,6 +10,15 @@
     <a href="?status=submitted" class="btn-sm {% if request.args.get('status')=='submitted' %}btn-gold{% else %}btn-gray{% endif %}">En attente</a>
     <a href="?status=confirmed" class="btn-sm {% if request.args.get('status')=='confirmed' %}btn-green{% else %}btn-gray{% endif %}">Confirmés</a>
     <a href="{{ url_for('admin.registrations') }}" class="btn-sm btn-gray">Tous</a>
+    {# ✅ NOUVEAU : bouton Imprimer #}
+    <button type="button" id="btn-imprimer" class="btn-sm btn-blue" title="Imprimer le tableau des inscrits">
+      🖨️ Imprimer
+    </button>
+    {# ✅ NOUVEAU : export Excel (respecte le filtre actif) #}
+    <a href="{{ url_for('admin.registrations_export', status=request.args.get('status')) }}"
+       class="btn-sm btn-green" title="Télécharger la liste au format Excel">
+      📥 Excel
+    </a>
   </div>
 </div>
 
@@ -22,7 +31,8 @@
 {% endwith %}
 
 <div class="card">
-  <table>
+  {# ✅ NOUVEAU : id="table-inscriptions" #}
+  <table id="table-inscriptions">
     <thead>
       <tr>
         <th>Nom</th><th>Événement</th><th>Contact</th><th>Hôtel</th>
@@ -100,4 +110,72 @@
     </tbody>
   </table>
 </div>
+
+{# ✅ NOUVEAU : script d'impression #}
+<script>
+(function () {
+  var btn = document.getElementById('btn-imprimer');
+  if (!btn) return;
+
+  // Libellé du filtre actif, pour le titre de l'impression
+  var filtre = {% if request.args.get('status') == 'submitted' %}'En attente'
+               {% elif request.args.get('status') == 'confirmed' %}'Confirmés'
+               {% else %}'Tous'{% endif %};
+
+  btn.addEventListener('click', function () {
+    var source = document.getElementById('table-inscriptions');
+    var table = source.cloneNode(true);
+
+    // 1) Retirer la colonne ACTIONS (dernière colonne)
+    table.querySelectorAll('tr').forEach(function (tr) {
+      if (tr.cells.length > 1) tr.deleteCell(tr.cells.length - 1);
+    });
+
+    // 2) Remplacer les listes déroulantes "Statut" par du texte simple
+    var originaux = source.querySelectorAll('select');
+    table.querySelectorAll('select').forEach(function (sel, i) {
+      var o = originaux[i];
+      var texte = o && o.selectedOptions.length ? o.selectedOptions[0].text : '';
+      sel.parentNode.replaceChild(document.createTextNode(texte), sel);
+    });
+
+    // 3) Les liens email deviennent du texte simple
+    table.querySelectorAll('a').forEach(function (a) {
+      a.parentNode.replaceChild(document.createTextNode(a.textContent), a);
+    });
+
+    var date = new Date().toLocaleDateString('fr-FR');
+    var total = {{ regs|length }};
+
+    var w = window.open('', '_blank');
+    if (!w) {
+      alert("Le navigateur a bloqué la fenêtre d'impression. Autorisez les pop-ups pour ce site.");
+      return;
+    }
+    w.document.write(
+      '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' +
+      '<title>Liste des inscrits</title>' +
+      '<style>' +
+      '@page { size: A4 landscape; margin: 10mm; }' +
+      'body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 0; padding: 10px; }' +
+      'h2 { text-align: center; margin: 0 0 4px; }' +
+      'p.sub { text-align: center; margin: 0 0 14px; font-size: 12px; color: #555; }' +
+      'table { width: 100%; border-collapse: collapse; font-size: 11px; }' +
+      'th, td { border: 1px solid #999; padding: 5px 6px; text-align: left; vertical-align: top; }' +
+      'th { background: #eee; text-transform: uppercase; font-size: 10px; }' +
+      'tr { page-break-inside: avoid; }' +
+      'thead { display: table-header-group; }' +
+      '</style></head><body>' +
+      '<h2>Liste des inscrits</h2>' +
+      '<p class="sub">Filtre : ' + filtre + ' — ' + total + ' inscription(s) — imprimé le ' + date + '</p>' +
+      table.outerHTML +
+      '</body></html>'
+    );
+    w.document.close();
+    w.focus();
+    // petit délai pour que la page soit rendue avant l'impression
+    setTimeout(function () { w.print(); }, 300);
+  });
+})();
+</script>
 {% endblock %}
